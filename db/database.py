@@ -3,7 +3,7 @@ from pathlib import Path
 from logging import debug, info, error
 from dotenv import load_dotenv
 import os
-from sqlalchemy import cast, Integer, text, func
+from sqlalchemy import cast, Integer, text, func, select
 from sqlalchemy.orm import sessionmaker
 from tqdm import tqdm
 import sqlite3
@@ -431,3 +431,14 @@ class Database:
             ).limit(20)
 
             blueprints = query.all()
+            
+    def get_posts_by_topic_id(self, topic_id):
+        session = self.open_session()
+        stmt = (
+            select(Post)
+            .join(Topic)
+            .where(Topic.id == topic_id)
+        )
+        posts = session.execute(stmt).scalars().all()
+        session.close()
+        return posts

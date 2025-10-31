@@ -442,3 +442,15 @@ class Database:
         posts = session.execute(stmt).scalars().all()
         session.close()
         return posts
+    
+    def get_blueprints_by_post_id(self, post_id):
+        session = self.open_session()
+        stmt = (
+            select(Blueprint)
+            .where(Blueprint.post_id == post_id)
+        )
+        blueprints = session.execute(stmt).scalars().all()
+        session.close()
+        return blueprints
+    
+

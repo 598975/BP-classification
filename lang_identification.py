@@ -1,11 +1,8 @@
 import langid
-from util.db import fetch_blueprint_code, delete_blueprints
-import yaml
-import tqdm
-from collections import Counter
 from util.text_manipulation import parse_yaml, get_leaf_values
+from db.models import Blueprint
 
-def main() -> tuple[list[dict], Counter]:
+""" def main() -> tuple[list[dict], Counter]:
     blueprints = fetch_blueprint_code()
     language_counts = Counter()
     non_english_bps : list[dict] = []
@@ -22,10 +19,12 @@ def main() -> tuple[list[dict], Counter]:
                 f.write(f"Blueprint Name: {name}, Non-key text: {bp_text}\nDetected Language: {language}\n")
                 f.write("-" * 100 + "\n")
             
-    return non_english_bps, language_counts
+    return non_english_bps, language_counts """
 
-def identify_language(blueprint: dict) -> str:
-    bp_text = " ".join(str(value) for value in get_leaf_values(blueprint))
+def identify_language(BP: Blueprint) -> str:
+    bp_code = BP.blueprint_code
+    bl_code_parsed = parse_yaml(bp_code)
+    bp_text = " ".join(str(value) for value in get_leaf_values(bl_code_parsed))
     language = langid.classify(bp_text)[0]
     return language
     

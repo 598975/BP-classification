@@ -1,3 +1,4 @@
+from collections import defaultdict
 import sys
 from pathlib import Path
 from logging import debug, info, error
@@ -453,4 +454,17 @@ class Database:
         session.close()
         return blueprints
     
+    def get_blueprints_per_topic(self):
+        session = self.open_session()
+        stmt = (
+            select(Topic, Blueprint)
+            .join(Post, Post.topic_id == Topic.topic_id)
+            .join(Blueprint, Blueprint.post_id == Post.post_id)
+        )
+        rows = session.execute(stmt).all()
+        groups = defaultdict(list)
+        for topic, blueprint in rows:
+            groups[topic.topic_id].append(blueprint)
+        session.close()
+        return groups
 

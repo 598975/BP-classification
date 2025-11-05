@@ -438,7 +438,7 @@ class Database:
         stmt = (
             select(Post)
             .join(Topic)
-            .where(Topic.id == topic_id)
+            .where(Topic.topic_id == topic_id)
         )
         posts = session.execute(stmt).scalars().all()
         session.close()

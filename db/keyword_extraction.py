@@ -7,8 +7,8 @@ from tqdm import tqdm
 # Add the parent directory to the path to import modules
 sys.path.append(str(Path(__file__).parents[1]))
 from db.database import Database
-from utils.blueprint import expand_blueprint, extract_keywords
-from utils.text_manipulation import parse_yaml, normalize_text
+from util.blueprint import expand_blueprint, extract_keywords
+from util.text_manipulation import parse_yaml, normalize_text
 
 
 def count_keywords(keywords_section):

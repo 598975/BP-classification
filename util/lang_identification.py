@@ -1,5 +1,5 @@
 import langid
-from util.text_manipulation import parse_yaml, get_leaf_values
+from .text_manipulation import parse_yaml, get_leaf_values
 from db.models import Blueprint
 
 """ def main() -> tuple[list[dict], Counter]:

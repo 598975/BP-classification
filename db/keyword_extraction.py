@@ -1,14 +1,17 @@
+import ast
+import re
 import pandas as pd
 from collections import Counter
 import sys
 from pathlib import Path
 from tqdm import tqdm
+import yake
 
 # Add the parent directory to the path to import modules
 sys.path.append(str(Path(__file__).parents[1]))
 from db.database import Database
 from util.blueprint import expand_blueprint, extract_keywords
-from util.text_manipulation import parse_yaml, normalize_text
+from util.text_manipulation import parse_yaml, normalize_text, yake_preprocessing
 
 
 def count_keywords(keywords_section):
@@ -67,8 +70,41 @@ def update_blueprint_keywords(db: Database):
         db.update_blueprint_keywords(bp_id, keywords, session)
     session.commit()
     session.close()
+    
+def update_blueprint_topic_keywords(db: Database):
+    topics = db.get_populated_topics()
+    for topic in tqdm(topics, desc="Updating topic keywords for blueprints"):
+        posts = db.get_posts_by_topic_id(topic.id)
+        bps = db.get_blueprints_by_topic_id(topic.id)
+        topic_bps = []
+        for post in posts:
+            bps = db.get_blueprints_by_post_id(post.post_id)
+            topic_bps.extend(bps)
+        cleaned_texts = [yake_preprocessing(post.cooked) for post in posts]
+        cleaned_texts.insert(0, yake_preprocessing(topic.title))
+        combined_text = ' '.join(cleaned_texts)
+        
+        yake_kw_extractor = yake.KeywordExtractor(lan="en", n=1, top=5)
+        yake_kw_extractor.stopword_set.add('blueprint')
+        tags = topic.tags
+        if isinstance(tags, str):
+            try:
+                tags = ast.literal_eval(tags)
+            except (ValueError, SyntaxError):
+                tags = [tags]
+        for tag in tags:
+            yake_kw_extractor.stopword_set.add(tag.lower())
+        keywords = yake_kw_extractor.extract_keywords(combined_text)
+        topic_keywords = {kw: score for kw, score in keywords}
+        
+        session = db.open_session()
+        for bp in topic_bps:
+            db.update_blueprint_topic_keywords(bp.id, topic_keywords, session)
+        session.commit()
+        session.close()
 
 
 if __name__ == "__main__":
     db = Database()
     update_blueprint_keywords(db)
+    update_blueprint_topic_keywords(db)

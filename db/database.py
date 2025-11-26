@@ -467,4 +467,34 @@ class Database:
             groups[topic.topic_id].append(blueprint)
         session.close()
         return groups
+    
+    def get_blueprints_by_topic_id(self, topic_id):
+        session = self.open_session()
+        stmt = (
+            select(Blueprint)
+            .join(Post, Blueprint.post_id == Post.post_id)
+            .join(Topic, Post.topic_id == Topic.topic_id)
+            .where(Topic.topic_id == topic_id)
+        )
+        blueprints = session.execute(stmt).scalars().all()
+        session.close()
+        return blueprints
+    
+    def get_populated_topics(self):
+        session = self.open_session()
+        stmt = (
+            select(Topic)
+            .join(Post, Post.topic_id == Topic.topic_id)
+            .join(Blueprint, Blueprint.post_id == Post.post_id)
+            .group_by(Topic.topic_id)
+        )
+        topics = session.execute(stmt).scalars().all()
+        session.close()
+        return topics
+    
+    def update_blueprint_topic_keywords(self, blueprint_id, keywords, session):
+        blueprint = session.query(Blueprint).filter_by(id=blueprint_id).first()
+        blueprint.topic_keywords = keywords
+        debug(f"Blueprint topic keywords updated: {blueprint_id}")
+        
 

@@ -74,8 +74,8 @@ def update_blueprint_keywords(db: Database):
 def update_blueprint_topic_keywords(db: Database):
     topics = db.get_populated_topics()
     for topic in tqdm(topics, desc="Updating topic keywords for blueprints"):
-        posts = db.get_posts_by_topic_id(topic.id)
-        bps = db.get_blueprints_by_topic_id(topic.id)
+        posts = db.get_posts_by_topic_id(topic.topic_id)
+        bps = db.get_blueprints_by_topic_id(topic.topic_id)
         topic_bps = []
         for post in posts:
             bps = db.get_blueprints_by_post_id(post.post_id)
@@ -84,8 +84,8 @@ def update_blueprint_topic_keywords(db: Database):
         cleaned_texts.insert(0, yake_preprocessing(topic.title))
         combined_text = ' '.join(cleaned_texts)
         
-        yake_kw_extractor = yake.KeywordExtractor(lan="en", n=1, top=5)
-        yake_kw_extractor.stopword_set.add('blueprint')
+        yake_kw_extractor = yake.KeywordExtractor(lan="en", n=1, top=3)
+        yake_kw_extractor.stopword_set.add("blueprint")
         tags = topic.tags
         if isinstance(tags, str):
             try:

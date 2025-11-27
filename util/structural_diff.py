@@ -1,3 +1,4 @@
+from flask import Blueprint
 from util.text_manipulation import normalize_text
 from util.text_manipulation import parse_yaml
 from db.database import Database
@@ -11,9 +12,11 @@ def normalize_blueprint(obj):
         else:
             return normalize_text(str(obj))
 
-def load_and_normalize_from_topic_id(topic_id=None, bps=None):
+def load_and_normalize_from_topic_id(topic_id=None, bps=None, bp_codes=None):
     if(bps):
         return [normalize_blueprint(parse_yaml(bp.blueprint_code)) for bp in bps]
+    if(bp_codes):
+        return [normalize_blueprint(parse_yaml(code)) for code in bp_codes]
     db = Database()
     
     topic_posts = db.get_posts_by_topic_id(topic_id)
@@ -27,3 +30,12 @@ def structural_diff(code1, code2):
     diff_size = len(str(diff))
     total_size = len(str(code1)) + len(str(code2))
     return diff, 1 - diff_size / total_size
+
+def compare_multiple_bps(bps : list[Blueprint]) -> list[list]:
+    normalized_codes = load_and_normalize_from_topic_id(bps=bps)
+    comparison = []
+    for i in range(len(normalized_codes)):
+        for j in range(i + 1, len(normalized_codes)):
+            _, similarity = structural_diff(normalized_codes[i], normalized_codes[j])
+            comparison.append((bps[i], bps[j], similarity))
+    return comparison

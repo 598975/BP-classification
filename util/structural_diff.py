@@ -1,4 +1,4 @@
-from flask import Blueprint
+from db.models import Blueprint
 from util.text_manipulation import normalize_text
 from util.text_manipulation import parse_yaml
 from db.database import Database
@@ -12,11 +12,9 @@ def normalize_blueprint(obj):
         else:
             return normalize_text(str(obj))
 
-def load_and_normalize_from_topic_id(topic_id=None, bps=None, bp_codes=None):
+def load_and_normalize_from_topic_id(topic_id=None, bps=None):
     if(bps):
         return [normalize_blueprint(parse_yaml(bp.blueprint_code)) for bp in bps]
-    if(bp_codes):
-        return [normalize_blueprint(parse_yaml(code)) for code in bp_codes]
     db = Database()
     
     topic_posts = db.get_posts_by_topic_id(topic_id)

@@ -2,7 +2,11 @@ import re
 import yaml
 import logging
 from bs4 import BeautifulSoup
-
+import nltk
+from nltk.stem import WordNetLemmatizer
+nltk.download("wordnet")
+from nltk.corpus import stopwords
+from tqdm import tqdm
 
 def input_constructor(loader, node):
     # Get the value from the node
@@ -54,4 +58,34 @@ def yake_preprocessing(text):
     text = text.lower()
     text = re.sub(r'’', r"'", text)
     text = re.sub(r"[^\w'\s]", '', text)
+    return text
+
+def get_corpus(texts: list[str], stopwords_list: list[str] | None = None):
+    corpus = []
+    for topic in tqdm(_topic_post_df["topic_id"].unique(), desc="Preprocessing and grouping by topic"):
+        topic_subset = _topic_post_df[_topic_post_df["topic_id"] == topic]
+        texts = topic_subset["cooked"].tolist()
+        combined_text = " ".join([tfidf_preprocessing(text, stopwords_list) for text in texts])
+        corpus.append(combined_text)
+    return corpus
+
+def tfidf_preprocessing(text, ignorable_words : list[str] | str | None = None):
+    if ignorable_words is None:
+        ignorable_words = []
+    elif not isinstance(ignorable_words, list):
+        ignorable_words = [ignorable_words]
+    ignorable_words = ignorable_words + ["blueprint", "automation", "entity", "work"]
+    text = remove_html(text)
+    lemmatizer = WordNetLemmatizer()
+    text = text.lower()
+    text = re.sub(r"’", r"'", text)
+    text = re.sub(r"[^\w'\s]", "", text)
+    text = text.split()
+    text = [lemmatizer.lemmatize(word) for word in text if word not in stopwords.words("english")]
+    text = " ".join(text)
+    """ text = re.sub("|".join(ignorable_words), "", text, flags=re.IGNORECASE) """
+    safe_tokens = [re.escape(w) for w in ignorable_words if w]
+    if safe_tokens:
+        pattern = "|".join(safe_tokens)
+        text = re.sub(pattern, "", text, flags=re.IGNORECASE)
     return text

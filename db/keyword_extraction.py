@@ -6,12 +6,13 @@ import sys
 from pathlib import Path
 from tqdm import tqdm
 import yake
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Add the parent directory to the path to import modules
 sys.path.append(str(Path(__file__).parents[1]))
 from db.database import Database
 from util.blueprint import expand_blueprint, extract_keywords
-from util.text_manipulation import parse_yaml, normalize_text, yake_preprocessing
+from util.text_manipulation import parse_yaml, normalize_text, yake_preprocessing, tfidf_preprocessing
 
 
 def count_keywords(keywords_section):
@@ -71,7 +72,7 @@ def update_blueprint_keywords(db: Database):
     session.commit()
     session.close()
     
-def update_blueprint_topic_keywords(db: Database):
+def update_blueprint_topic_keywords_yake(db: Database):
     topics = db.get_populated_topics()
     for topic in tqdm(topics, desc="Updating topic keywords for blueprints"):
         posts = db.get_posts_by_topic_id(topic.topic_id)
@@ -102,9 +103,52 @@ def update_blueprint_topic_keywords(db: Database):
             db.update_blueprint_topic_keywords(bp.id, topic_keywords, session)
         session.commit()
         session.close()
+    
+def update_blueprint_topic_keywords_tfidf(db: Database):
+    blueprints = db.get_all_blueprints()
+    topics = db.get_topics()
+    posts = db.get_posts()
+    bp_data = []
+    for bp in blueprints:
+        bp_dict = {
+            "blueprint_id": bp.id,
+            "blueprint_code": bp.blueprint_code,
+            "post_id": bp.post_id,
+        }
+        bp_data.append(bp_dict)
+    df_bp = pd.DataFrame(bp_data)
+    topics_data = []
+    for topic in topics:
+        topic_dict = {
+            "id": topic.id,
+            "topic_id": topic.topic_id,
+            "title": topic.title,
+            "tags": topic.tags,
+        }
+        topics_data.append(topic_dict)
+    df_topics = pd.DataFrame(topics_data)
+    posts_data = []
+    for post in posts:
+        post_dict = {
+            "id": post.id,
+            "post_id": post.post_id,
+            "topic_id": post.topic_id,
+            "cooked": post.cooked,
+        }
+        posts_data.append(post_dict)
+    df_posts = pd.DataFrame(posts_data)
+    topic_posts = df_topics.merge(df_posts, left_on="topic_id", right_on="topic_id")
+    topic_bp = topic_posts.merge(df_bp, left_on="post_id", right_on="post_id")
+
+    corpus = []
+    for topic in tqdm(topic_posts["topic_id"].unique(), desc="Preprocessing and grouping by topic"):
+        topic_subset = topic_posts[topic_posts["topic_id"] == topic]
+        texts = topic_subset["cooked"].tolist()
+        combined_text = " ".join([tfidf_preprocessing(text) for text in texts])
+        corpus.append(combined_text)
 
 
 if __name__ == "__main__":
     db = Database()
     update_blueprint_keywords(db)
-    update_blueprint_topic_keywords(db)
+    update_blueprint_topic_keywords_yake(db)

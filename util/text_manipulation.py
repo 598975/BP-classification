@@ -43,31 +43,22 @@ def get_leaf_values(data):
         yield data
 
 def remove_html(text):
-    soup = BeautifulSoup(text, 'html.parser')
+    soup = BeautifulSoup(text, "html.parser")
     
-    for code_tag in soup.find_all('code', {'class':['lang-auto','lang-yaml']}):
+    for code_tag in soup.find_all("code", {"class":["lang-auto","lang-yaml"]}):
         code_tag.decompose()
     
-    for a_tag in soup.find_all('a'):
+    for a_tag in soup.find_all("a"):
         a_tag.decompose()
     
-    return soup.get_text().replace('\n', ' ').strip()
+    return soup.get_text().replace("\n", " ").strip()
  
 def yake_preprocessing(text):
     text = remove_html(text)
     text = text.lower()
-    text = re.sub(r'’', r"'", text)
-    text = re.sub(r"[^\w'\s]", '', text)
+    text = re.sub(r"’", r"'", text)
+    text = re.sub(r"[^\w'\s]", "", text)
     return text
-
-def get_corpus(texts: list[str], stopwords_list: list[str] | None = None):
-    corpus = []
-    for topic in tqdm(_topic_post_df["topic_id"].unique(), desc="Preprocessing and grouping by topic"):
-        topic_subset = _topic_post_df[_topic_post_df["topic_id"] == topic]
-        texts = topic_subset["cooked"].tolist()
-        combined_text = " ".join([tfidf_preprocessing(text, stopwords_list) for text in texts])
-        corpus.append(combined_text)
-    return corpus
 
 def tfidf_preprocessing(text, ignorable_words : list[str] | str | None = None):
     if ignorable_words is None:
@@ -77,13 +68,15 @@ def tfidf_preprocessing(text, ignorable_words : list[str] | str | None = None):
     ignorable_words = ignorable_words + ["blueprint", "automation", "entity", "work"]
     text = remove_html(text)
     lemmatizer = WordNetLemmatizer()
+    ignorable_words = [lemmatizer.lemmatize(w.lower()) for w in ignorable_words]
     text = text.lower()
     text = re.sub(r"’", r"'", text)
     text = re.sub(r"[^\w'\s]", "", text)
+    text = re.sub(r"\b\d+\b", "", text)
     text = text.split()
     text = [lemmatizer.lemmatize(word) for word in text if word not in stopwords.words("english")]
     text = " ".join(text)
-    """ text = re.sub("|".join(ignorable_words), "", text, flags=re.IGNORECASE) """
+    #text = re.sub("|".join(ignorable_words), "", text, flags=re.IGNORECASE)
     safe_tokens = [re.escape(w) for w in ignorable_words if w]
     if safe_tokens:
         pattern = "|".join(safe_tokens)

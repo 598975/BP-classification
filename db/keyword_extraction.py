@@ -7,6 +7,7 @@ from pathlib import Path
 from tqdm import tqdm
 import yake
 from sklearn.feature_extraction.text import TfidfVectorizer
+import numpy as np
 
 # Add the parent directory to the path to import modules
 sys.path.append(str(Path(__file__).parents[1]))
@@ -103,52 +104,79 @@ def update_blueprint_topic_keywords_yake(db: Database):
             db.update_blueprint_topic_keywords(bp.id, topic_keywords, session)
         session.commit()
         session.close()
+        
+def extract_top_n_keywords(row, features, top_n=2):
+    row_array = row.toarray().flatten()
+    top_n_indices = np.argsort(row_array)[-top_n:][::-1]
+    top_n_terms = [features[i] for i in top_n_indices]
+    top_n_scores = [row_array[i] for i in top_n_indices]
+    return list(zip(top_n_terms, top_n_scores))
     
 def update_blueprint_topic_keywords_tfidf(db: Database):
     blueprints = db.get_all_blueprints()
     topics = db.get_topics()
     posts = db.get_posts()
-    bp_data = []
-    for bp in blueprints:
-        bp_dict = {
+    
+    bp_data = [{
             "blueprint_id": bp.id,
             "blueprint_code": bp.blueprint_code,
+            "description": bp.description,
+            "name": bp.name,
             "post_id": bp.post_id,
-        }
-        bp_data.append(bp_dict)
+        } for bp in blueprints]
     df_bp = pd.DataFrame(bp_data)
-    topics_data = []
-    for topic in topics:
-        topic_dict = {
+    topics_data = [{
             "id": topic.id,
             "topic_id": topic.topic_id,
             "title": topic.title,
             "tags": topic.tags,
-        }
-        topics_data.append(topic_dict)
+        } for topic in topics]
     df_topics = pd.DataFrame(topics_data)
-    posts_data = []
-    for post in posts:
-        post_dict = {
+    posts_data = [{
             "id": post.id,
             "post_id": post.post_id,
             "topic_id": post.topic_id,
             "cooked": post.cooked,
-        }
-        posts_data.append(post_dict)
+        } for post in posts]
     df_posts = pd.DataFrame(posts_data)
-    topic_posts = df_topics.merge(df_posts, left_on="topic_id", right_on="topic_id")
-    topic_bp = topic_posts.merge(df_bp, left_on="post_id", right_on="post_id")
+
+    topic_posts = df_topics.merge(df_posts, on="topic_id")
+    topic_bp = topic_posts.merge(df_bp, on="post_id")
+    topic_posts = topic_posts[topic_posts["topic_id"].isin(topic_bp["topic_id"])]
 
     corpus = []
-    for topic in tqdm(topic_posts["topic_id"].unique(), desc="Preprocessing and grouping by topic"):
+    topic_to_index = {}
+    for idx, topic in tqdm(enumerate(topic_posts["topic_id"].unique()), desc="Preprocessing and creating corpus by topic"):
         topic_subset = topic_posts[topic_posts["topic_id"] == topic]
         texts = topic_subset["cooked"].tolist()
-        combined_text = " ".join([tfidf_preprocessing(text) for text in texts])
+        texts.insert(0, topic_subset["title"].iloc[0])
+        bps = topic_bp[topic_bp["topic_id"] == topic]
+        texts.extend(bps["description"].tolist())
+        texts.extend(bps["name"].tolist())
+        combined_text = " ".join([tfidf_preprocessing(text, topic_subset["tags"].iloc[0]) for text in texts])
         corpus.append(combined_text)
+        topic_to_index[topic] = idx
+    
+    tfidf = TfidfVectorizer()
+    res = tfidf.fit_transform(corpus)
+    feature_names = tfidf.get_feature_names_out()
+    
+    session = db.open_session()
+    for topic_id in tqdm(topic_bp["topic_id"].unique(), desc="Updating topic keywords"):
+        topic_index = topic_to_index[topic_id]
+        row = res[topic_index]
+        top_keywords = extract_top_n_keywords(row, feature_names, top_n=2)
+        topic_keywords = {kw: score for kw, score in top_keywords}
+
+        topic_bps = topic_bp[topic_bp["topic_id"] == topic_id]
+        for _, bp_row in topic_bps.iterrows():
+            db.update_blueprint_topic_keywords(bp_row["blueprint_id"], topic_keywords, session)
+    session.commit()
+    session.close()
 
 
 if __name__ == "__main__":
     db = Database()
-    update_blueprint_keywords(db)
-    update_blueprint_topic_keywords_yake(db)
+    """ update_blueprint_keywords(db)
+    update_blueprint_topic_keywords_yake(db) """
+    update_blueprint_topic_keywords_tfidf(db)

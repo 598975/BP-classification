@@ -73,9 +73,9 @@ def update_blueprint_keywords(db: Database):
     session.commit()
     session.close()
     
-def update_blueprint_topic_keywords_yake(db: Database):
+def update_blueprint_keywords_yake(db: Database):
     topics = db.get_populated_topics()
-    for topic in tqdm(topics, desc="Updating topic keywords for blueprints"):
+    for topic in tqdm(topics, desc="Updating topic yake keywords"):
         posts = db.get_posts_by_topic_id(topic.topic_id)
         bps = db.get_blueprints_by_topic_id(topic.topic_id)
         topic_bps = []
@@ -101,7 +101,7 @@ def update_blueprint_topic_keywords_yake(db: Database):
         
         session = db.open_session()
         for bp in topic_bps:
-            db.update_blueprint_topic_keywords(bp.id, topic_keywords, session)
+            db.update_yake_keywords(bp.id, topic_keywords, session)
         session.commit()
         session.close()
         
@@ -112,7 +112,7 @@ def extract_top_n_keywords(row, features, top_n=2):
     top_n_scores = [row_array[i] for i in top_n_indices]
     return list(zip(top_n_terms, top_n_scores))
     
-def update_blueprint_topic_keywords_tfidf(db: Database):
+def update_blueprint_keywords_tfidf(db: Database):
     blueprints = db.get_all_blueprints()
     topics = db.get_topics()
     posts = db.get_posts()
@@ -162,7 +162,7 @@ def update_blueprint_topic_keywords_tfidf(db: Database):
     feature_names = tfidf.get_feature_names_out()
     
     session = db.open_session()
-    for topic_id in tqdm(topic_bp["topic_id"].unique(), desc="Updating topic keywords"):
+    for topic_id in tqdm(topic_bp["topic_id"].unique(), desc="Updating topic tfidf keywords"):
         topic_index = topic_to_index[topic_id]
         row = res[topic_index]
         top_keywords = extract_top_n_keywords(row, feature_names, top_n=2)
@@ -170,13 +170,13 @@ def update_blueprint_topic_keywords_tfidf(db: Database):
 
         topic_bps = topic_bp[topic_bp["topic_id"] == topic_id]
         for _, bp_row in topic_bps.iterrows():
-            db.update_blueprint_topic_keywords(bp_row["blueprint_id"], topic_keywords, session)
+            db.update_tfidf_keywords(bp_row["blueprint_id"], topic_keywords, session)
     session.commit()
     session.close()
 
 
 if __name__ == "__main__":
     db = Database()
-    """ update_blueprint_keywords(db)
-    update_blueprint_topic_keywords_yake(db) """
-    update_blueprint_topic_keywords_tfidf(db)
+    update_blueprint_keywords(db)
+    update_blueprint_keywords_yake(db)
+    update_blueprint_keywords_tfidf(db)

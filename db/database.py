@@ -497,4 +497,13 @@ class Database:
         blueprint.topic_keywords = keywords
         debug(f"Blueprint topic keywords updated: {blueprint_id}")
         
+    def update_yake_keywords(self, blueprint_id, keywords, session):
+        blueprint = session.query(Blueprint).filter_by(id=blueprint_id).first()
+        blueprint.keywords_yake = keywords
+        debug(f"Blueprint YAKE topic keywords updated: {blueprint_id}")
+        
+    def update_tfidf_keywords(self, blueprint_id, keywords, session):
+        blueprint = session.query(Blueprint).filter_by(id=blueprint_id).first()
+        blueprint.keywords_tfidf = keywords
+        debug(f"Blueprint TF-IDF topic keywords updated: {blueprint_id}")
 

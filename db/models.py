@@ -113,6 +113,8 @@ class Blueprint(Base):
     description = Column(Text)
     extracted_keywords = Column(JSON)
     topic_keywords = Column(JSON)
+    keywords_yake = Column(JSON)
+    keywords_tfidf = Column(JSON)
 
     # Relationship to Post
     post = relationship("Post", back_populates="blueprint")

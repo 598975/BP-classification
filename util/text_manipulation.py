@@ -32,7 +32,7 @@ def normalize_text(domain: str):
     return domain.lower().replace("-", "_").replace("/", "_").replace(" ", "_")
 
 def get_leaf_values(data):
-    """Recursively retrieves leaf values, which in HA blueprints are user-defined strings and not predetermined YAML tags."""
+    """Recursively retrieves leaf values from nested data structures."""
     if isinstance(data, dict):
         for value in data.values():
             yield from get_leaf_values(value)

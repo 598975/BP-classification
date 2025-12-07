@@ -1,5 +1,9 @@
 from db.database import Database
-from db.keyword_extraction import update_blueprint_keywords, update_blueprint_keywords_tfidf, update_blueprint_keywords_yake
+from db.keyword_extraction import (
+    update_blueprint_keywords,
+    update_blueprint_keywords_tfidf,
+    update_blueprint_keywords_yake,
+)
 import logging
 import argparse
 from sqlalchemy.sql import text
@@ -37,10 +41,9 @@ logging.basicConfig(
 
 
 def main():
-
     try:
         db = Database(local=True, drop_existing_tables=False)
-        
+
         with db.engine.connect() as connection:
             inspector = inspect(connection)
             columns = [col["name"] for col in inspector.get_columns("blueprints")]
@@ -56,7 +59,7 @@ def main():
                 connection.execute(
                     text("ALTER TABLE blueprints ADD COLUMN keywords_tfidf JSON")
                 )
-    
+
         update_blueprint_keywords(db)
         update_blueprint_keywords_yake(db)
         update_blueprint_keywords_tfidf(db)

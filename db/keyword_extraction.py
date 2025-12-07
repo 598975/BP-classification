@@ -13,7 +13,12 @@ import numpy as np
 sys.path.append(str(Path(__file__).parents[1]))
 from db.database import Database
 from util.blueprint import expand_blueprint, extract_keywords
-from util.text_manipulation import parse_yaml, normalize_text, yake_preprocessing, tfidf_preprocessing
+from util.text_manipulation import (
+    parse_yaml,
+    normalize_text,
+    yake_preprocessing,
+    tfidf_preprocessing,
+)
 
 
 def count_keywords(keywords_section):
@@ -72,7 +77,8 @@ def update_blueprint_keywords(db: Database):
         db.update_blueprint_keywords(bp_id, keywords, session)
     session.commit()
     session.close()
-    
+
+
 def update_blueprint_keywords_yake(db: Database):
     topics = db.get_populated_topics()
     for topic in tqdm(topics, desc="Updating topic yake keywords"):
@@ -84,8 +90,8 @@ def update_blueprint_keywords_yake(db: Database):
             topic_bps.extend(bps)
         cleaned_texts = [yake_preprocessing(post.cooked) for post in posts]
         cleaned_texts.insert(0, yake_preprocessing(topic.title))
-        combined_text = ' '.join(cleaned_texts)
-        
+        combined_text = " ".join(cleaned_texts)
+
         yake_kw_extractor = yake.KeywordExtractor(lan="en", n=1, top=3)
         yake_kw_extractor.stopword_set.add("blueprint")
         tags = topic.tags
@@ -98,46 +104,57 @@ def update_blueprint_keywords_yake(db: Database):
             yake_kw_extractor.stopword_set.add(tag.lower())
         keywords = yake_kw_extractor.extract_keywords(combined_text)
         topic_keywords = {kw: score for kw, score in keywords}
-        
+
         session = db.open_session()
         for bp in topic_bps:
             db.update_yake_keywords(bp.id, topic_keywords, session)
         session.commit()
         session.close()
-        
+
+
 def extract_top_n_keywords(row, features, top_n=2):
     row_array = row.toarray().flatten()
     top_n_indices = np.argsort(row_array)[-top_n:][::-1]
     top_n_terms = [features[i] for i in top_n_indices]
     top_n_scores = [row_array[i] for i in top_n_indices]
     return list(zip(top_n_terms, top_n_scores))
-    
+
+
 def update_blueprint_keywords_tfidf(db: Database):
     blueprints = db.get_all_blueprints()
     topics = db.get_topics()
     posts = db.get_posts()
-    
-    bp_data = [{
+
+    bp_data = [
+        {
             "blueprint_id": bp.id,
             "blueprint_code": bp.blueprint_code,
             "description": bp.description,
             "name": bp.name,
             "post_id": bp.post_id,
-        } for bp in blueprints]
+        }
+        for bp in blueprints
+    ]
     df_bp = pd.DataFrame(bp_data)
-    topics_data = [{
+    topics_data = [
+        {
             "id": topic.id,
             "topic_id": topic.topic_id,
             "title": topic.title,
             "tags": topic.tags,
-        } for topic in topics]
+        }
+        for topic in topics
+    ]
     df_topics = pd.DataFrame(topics_data)
-    posts_data = [{
+    posts_data = [
+        {
             "id": post.id,
             "post_id": post.post_id,
             "topic_id": post.topic_id,
             "cooked": post.cooked,
-        } for post in posts]
+        }
+        for post in posts
+    ]
     df_posts = pd.DataFrame(posts_data)
 
     topic_posts = df_topics.merge(df_posts, on="topic_id")
@@ -146,23 +163,30 @@ def update_blueprint_keywords_tfidf(db: Database):
 
     corpus = []
     topic_to_index = {}
-    for idx, topic in tqdm(enumerate(topic_posts["topic_id"].unique()), desc="Preprocessing and creating corpus by topic"):
+    for idx, topic in tqdm(
+        enumerate(topic_posts["topic_id"].unique()),
+        desc="Preprocessing and creating corpus by topic",
+    ):
         topic_subset = topic_posts[topic_posts["topic_id"] == topic]
         texts = topic_subset["cooked"].tolist()
         texts.insert(0, topic_subset["title"].iloc[0])
         bps = topic_bp[topic_bp["topic_id"] == topic]
         texts.extend(bps["description"].tolist())
         texts.extend(bps["name"].tolist())
-        combined_text = " ".join([tfidf_preprocessing(text, topic_subset["tags"].iloc[0]) for text in texts])
+        combined_text = " ".join(
+            [tfidf_preprocessing(text, topic_subset["tags"].iloc[0]) for text in texts]
+        )
         corpus.append(combined_text)
         topic_to_index[topic] = idx
-    
+
     tfidf = TfidfVectorizer()
     res = tfidf.fit_transform(corpus)
     feature_names = tfidf.get_feature_names_out()
-    
+
     session = db.open_session()
-    for topic_id in tqdm(topic_bp["topic_id"].unique(), desc="Updating topic tfidf keywords"):
+    for topic_id in tqdm(
+        topic_bp["topic_id"].unique(), desc="Updating topic tfidf keywords"
+    ):
         topic_index = topic_to_index[topic_id]
         row = res[topic_index]
         top_keywords = extract_top_n_keywords(row, feature_names, top_n=2)

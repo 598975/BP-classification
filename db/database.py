@@ -432,28 +432,21 @@ class Database:
             ).limit(20)
 
             blueprints = query.all()
-            
+
     def get_posts_by_topic_id(self, topic_id):
         session = self.open_session()
-        stmt = (
-            select(Post)
-            .join(Topic)
-            .where(Topic.topic_id == topic_id)
-        )
+        stmt = select(Post).join(Topic).where(Topic.topic_id == topic_id)
         posts = session.execute(stmt).scalars().all()
         session.close()
         return posts
-    
+
     def get_blueprints_by_post_id(self, post_id):
         session = self.open_session()
-        stmt = (
-            select(Blueprint)
-            .where(Blueprint.post_id == post_id)
-        )
+        stmt = select(Blueprint).where(Blueprint.post_id == post_id)
         blueprints = session.execute(stmt).scalars().all()
         session.close()
         return blueprints
-    
+
     def get_blueprints_per_topic(self):
         session = self.open_session()
         stmt = (
@@ -467,7 +460,7 @@ class Database:
             groups[topic.topic_id].append(blueprint)
         session.close()
         return groups
-    
+
     def get_blueprints_by_topic_id(self, topic_id):
         session = self.open_session()
         stmt = (
@@ -479,7 +472,7 @@ class Database:
         blueprints = session.execute(stmt).scalars().all()
         session.close()
         return blueprints
-    
+
     def get_populated_topics(self):
         session = self.open_session()
         stmt = (
@@ -491,19 +484,18 @@ class Database:
         topics = session.execute(stmt).scalars().all()
         session.close()
         return topics
-    
+
     def update_blueprint_topic_keywords(self, blueprint_id, keywords, session):
         blueprint = session.query(Blueprint).filter_by(id=blueprint_id).first()
         blueprint.topic_keywords = keywords
         debug(f"Blueprint topic keywords updated: {blueprint_id}")
-        
+
     def update_yake_keywords(self, blueprint_id, keywords, session):
         blueprint = session.query(Blueprint).filter_by(id=blueprint_id).first()
         blueprint.keywords_yake = keywords
         debug(f"Blueprint YAKE topic keywords updated: {blueprint_id}")
-        
+
     def update_tfidf_keywords(self, blueprint_id, keywords, session):
         blueprint = session.query(Blueprint).filter_by(id=blueprint_id).first()
         blueprint.keywords_tfidf = keywords
         debug(f"Blueprint TF-IDF topic keywords updated: {blueprint_id}")
-

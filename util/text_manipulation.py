@@ -4,9 +4,10 @@ import logging
 from bs4 import BeautifulSoup
 import nltk
 from nltk.stem import WordNetLemmatizer
-nltk.download("wordnet")
 from nltk.corpus import stopwords
-from tqdm import tqdm
+
+nltk.download("wordnet")
+
 
 def input_constructor(loader, node):
     # Get the value from the node
@@ -31,6 +32,7 @@ def parse_yaml(text) -> dict | None:
 def normalize_text(domain: str):
     return domain.lower().replace("-", "_").replace("/", "_").replace(" ", "_")
 
+
 def get_leaf_values(data):
     """Recursively retrieves leaf values from nested data structures."""
     if isinstance(data, dict):
@@ -42,17 +44,19 @@ def get_leaf_values(data):
     else:
         yield data
 
+
 def remove_html(text):
     soup = BeautifulSoup(text, "html.parser")
-    
-    for code_tag in soup.find_all("code", {"class":["lang-auto","lang-yaml"]}):
+
+    for code_tag in soup.find_all("code", {"class": ["lang-auto", "lang-yaml"]}):
         code_tag.decompose()
-    
+
     for a_tag in soup.find_all("a"):
         a_tag.decompose()
-    
+
     return soup.get_text().replace("\n", " ").strip()
- 
+
+
 def yake_preprocessing(text):
     text = remove_html(text)
     text = text.lower()
@@ -60,7 +64,8 @@ def yake_preprocessing(text):
     text = re.sub(r"[^\w'\s]", "", text)
     return text
 
-def tfidf_preprocessing(text, ignorable_words : list[str] | str | None = None):
+
+def tfidf_preprocessing(text, ignorable_words: list[str] | str | None = None):
     if ignorable_words is None:
         ignorable_words = []
     elif not isinstance(ignorable_words, list):
@@ -74,11 +79,16 @@ def tfidf_preprocessing(text, ignorable_words : list[str] | str | None = None):
     text = re.sub(r"[^\w'\s]", "", text)
     text = re.sub(r"\b\d+\b", "", text)
     text = text.split()
-    text = [lemmatizer.lemmatize(word) for word in text if word not in stopwords.words("english")]
+    text = [
+        lemmatizer.lemmatize(word)
+        for word in text
+        if word not in stopwords.words("english")
+    ]
     text = " ".join(text)
-    #text = re.sub("|".join(ignorable_words), "", text, flags=re.IGNORECASE)
+    # text = re.sub("|".join(ignorable_words), "", text, flags=re.IGNORECASE)
     safe_tokens = [re.escape(w) for w in ignorable_words if w]
     if safe_tokens:
         pattern = "|".join(safe_tokens)
         text = re.sub(pattern, "", text, flags=re.IGNORECASE)
     return text
+

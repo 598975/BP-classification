@@ -35,16 +35,18 @@ def structural_diff(code1, code2):
     return diff, 1 - diff_size / total_size
 
 
-def compare_multiple_bps(bps: list[Blueprint]) -> list[tuple[Blueprint, Blueprint, float]]:
+def compare_multiple_bps(
+    bps: list[Blueprint],
+) -> list[tuple[Blueprint, Blueprint, float]]:
     """
     Compare multiple blueprints and return their pairwise structural differences.
-    
+
     :param bps: List of Blueprint objects to compare.
     :type bps: list[Blueprint]
     :return: List of tuples containing pairs of Blueprints and their similarity score.
     :rtype: list[tuple[Blueprint, Blueprint, float]]
     """
-    
+
     normalized_codes = load_and_normalize_blueprints(bps=bps)
     comparison = []
     for i in range(len(normalized_codes)):
@@ -52,4 +54,3 @@ def compare_multiple_bps(bps: list[Blueprint]) -> list[tuple[Blueprint, Blueprin
             _, similarity = structural_diff(normalized_codes[i], normalized_codes[j])
             comparison.append((bps[i], bps[j], similarity))
     return comparison
-

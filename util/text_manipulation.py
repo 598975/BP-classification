@@ -91,4 +91,3 @@ def tfidf_preprocessing(text, ignorable_words: list[str] | str | None = None):
         pattern = "|".join(safe_tokens)
         text = re.sub(pattern, "", text, flags=re.IGNORECASE)
     return text
-

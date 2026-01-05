@@ -7,4 +7,3 @@ def identify_language_yaml(bp_code) -> str:
     bp_text = " ".join(str(value) for value in get_leaf_values(bl_code_parsed))
     language = langid.classify(bp_text)[0]
     return language
-

@@ -1,5 +1,6 @@
 import ast
 import re
+from typing import Any
 import pandas as pd
 from collections import Counter
 import sys
@@ -16,8 +17,9 @@ from util.blueprint import expand_blueprint, extract_keywords
 from util.text_manipulation import (
     parse_yaml,
     normalize_text,
-    yake_preprocessing,
+    preprocess,
     tfidf_preprocessing,
+    keywords_remove_input,
 )
 
 
@@ -79,37 +81,65 @@ def update_blueprint_keywords(db: Database):
     session.close()
 
 
+def get_dataframes(db: Database) -> tuple[Any, Any, Any]:
+    bp_df = db.get_filtered_bps()
+    posts = {post.post_id: post for post in db.get_posts()}
+    topics = {topic.topic_id: topic for topic in db.get_topics()}
+
+    posts_df = pd.DataFrame(
+        [
+            {_attr: getattr(post, _attr) for _attr in post.__dict__.keys()}
+            for post in posts.values()
+        ]
+    )
+    topics_df = pd.DataFrame(
+        [
+            {_attr: getattr(topic, _attr) for _attr in topic.__dict__.keys()}
+            for topic in topics.values()
+        ]
+    )
+
+    _filtered_topics = bp_df["topic_id"].unique().tolist()
+
+    topics_df = topics_df[topics_df["topic_id"].isin(_filtered_topics)]
+    posts_df = posts_df[posts_df["topic_id"].isin(_filtered_topics)]
+
+    return bp_df, posts_df, topics_df
+
+
 def update_blueprint_keywords_yake(db: Database):
-    topics = db.get_populated_topics()
-    for topic in tqdm(topics, desc="Updating topic yake keywords"):
-        posts = db.get_posts_by_topic_id(topic.topic_id)
-        bps = db.get_blueprints_by_topic_id(topic.topic_id)
-        topic_bps = []
-        for post in posts:
-            bps = db.get_blueprints_by_post_id(post.post_id)
-            topic_bps.extend(bps)
-        cleaned_texts = [yake_preprocessing(post.cooked) for post in posts]
-        cleaned_texts.insert(0, yake_preprocessing(topic.title))
-        combined_text = " ".join(cleaned_texts)
+    bp_df, posts_df, topics_df = get_dataframes(db)
+    bp_df["processed_keywords"] = bp_df["extracted_keywords"].apply(keywords_remove_input)
 
-        yake_kw_extractor = yake.KeywordExtractor(lan="en", n=1, top=3)
-        yake_kw_extractor.stopword_set.add("blueprint")
-        tags = topic.tags
-        if isinstance(tags, str):
-            try:
-                tags = ast.literal_eval(tags)
-            except (ValueError, SyntaxError):
-                tags = [tags]
-        for tag in tags:
-            yake_kw_extractor.stopword_set.add(tag.lower())
-        keywords = yake_kw_extractor.extract_keywords(combined_text)
-        topic_keywords = {kw: score for kw, score in keywords}
+    session = db.open_session()
+    for _, topic in tqdm(topics_df.iterrows(), total=topics_df.shape[0]):
+        posts_in_topic = posts_df[posts_df["topic_id"] == topic["topic_id"]]
+        bps_in_topic = bp_df[bp_df["topic_id"] == topic["topic_id"]]
 
-        session = db.open_session()
-        for bp in topic_bps:
-            db.update_yake_keywords(bp.id, topic_keywords, session)
-        session.commit()
-        session.close()
+        yake_kw = yake.KeywordExtractor()
+        tags_set = set(topic["tags"])
+        proc_keywords = bps_in_topic["processed_keywords"].tolist()
+        proc_keywords = [kwd for sublist in proc_keywords if sublist for kwd in sublist]
+        yake_kw.stopword_set = yake_kw.stopword_set.union(
+            {"blueprint", "home", "assistant", "automation"}
+            | tags_set
+            | set(proc_keywords)
+        )
+
+        text = [preprocess(topic["title"])]
+        for post in posts_in_topic["cooked"].tolist():
+            text.append(preprocess(post))
+        for bp in bps_in_topic["description"].tolist():
+            text.append(preprocess(bp))
+
+        text = ". ".join(text)
+        _kws = yake_kw.extract_keywords(text)
+        keywords = [kwd for kwd, _ in _kws]
+
+        for bp in bps_in_topic:
+            db.update_tfidf_keywords(bp["blueprint_id"], keywords, session)
+    session.commit()
+    session.close()
 
 
 def extract_top_n_keywords(row, features, top_n=2):
@@ -121,45 +151,7 @@ def extract_top_n_keywords(row, features, top_n=2):
 
 
 def update_blueprint_keywords_tfidf(db: Database):
-    blueprints = db.get_all_blueprints()
-    topics = db.get_topics()
-    posts = db.get_posts()
-
-    bp_data = [
-        {
-            "blueprint_id": bp.id,
-            "blueprint_code": bp.blueprint_code,
-            "description": bp.description,
-            "name": bp.name,
-            "post_id": bp.post_id,
-        }
-        for bp in blueprints
-    ]
-    df_bp = pd.DataFrame(bp_data)
-    topics_data = [
-        {
-            "id": topic.id,
-            "topic_id": topic.topic_id,
-            "title": topic.title,
-            "tags": topic.tags,
-        }
-        for topic in topics
-    ]
-    df_topics = pd.DataFrame(topics_data)
-    posts_data = [
-        {
-            "id": post.id,
-            "post_id": post.post_id,
-            "topic_id": post.topic_id,
-            "cooked": post.cooked,
-        }
-        for post in posts
-    ]
-    df_posts = pd.DataFrame(posts_data)
-
-    topic_posts = df_topics.merge(df_posts, on="topic_id")
-    topic_bp = topic_posts.merge(df_bp, on="post_id")
-    topic_posts = topic_posts[topic_posts["topic_id"].isin(topic_bp["topic_id"])]
+    bp_df, posts_df, topics_df = get_dataframes(db)
 
     corpus = []
     topic_to_index = {}

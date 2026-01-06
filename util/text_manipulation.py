@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
+import json
 
 nltk.download("wordnet")
 
@@ -57,11 +58,10 @@ def remove_html(text):
     return soup.get_text().replace("\n", " ").strip()
 
 
-def yake_preprocessing(text):
+def preprocess(text):
     text = remove_html(text)
     text = text.lower()
     text = re.sub(r"’", r"'", text)
-    text = re.sub(r"[^\w'\s]", "", text)
     return text
 
 
@@ -91,3 +91,20 @@ def tfidf_preprocessing(text, ignorable_words: list[str] | str | None = None):
         pattern = "|".join(safe_tokens)
         text = re.sub(pattern, "", text, flags=re.IGNORECASE)
     return text
+
+
+def keywords_remove_input(kwd_dict: dict[str, int] | str) -> list[str] | None:
+    if isinstance(kwd_dict, str):
+        kwd_dict = json.loads(kwd_dict)
+
+    kwd_list = list(kwd_dict.keys())
+    if kwd_list.__len__() < 1:
+        return None
+
+    kwds = []
+
+    for kwd in kwd_list:
+        in_out = re.search(r"(input__|output__)(input_|output_)?", kwd)
+        kwd = kwd.removeprefix(in_out.group()) if in_out else kwd
+        kwds.append(kwd)
+    return kwds

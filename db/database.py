@@ -499,3 +499,8 @@ class Database:
         blueprint = session.query(Blueprint).filter_by(id=blueprint_id).first()
         blueprint.keywords_tfidf = keywords
         debug(f"Blueprint TF-IDF topic keywords updated: {blueprint_id}")
+
+    def get_filtered_bps(self):
+        with sqlite3.connect("home_assistant_blueprints.sqlite") as conn:
+            bp_df = pd.read_sql_table("blueprints_filtered", conn)
+        return bp_df

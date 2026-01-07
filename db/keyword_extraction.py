@@ -1,6 +1,3 @@
-import ast
-import re
-from typing import Any
 import pandas as pd
 from collections import Counter
 import sys
@@ -21,6 +18,7 @@ from util.text_manipulation import (
     tfidf_preprocessing,
     keywords_remove_input,
 )
+from util.pandas import get_dataframes
 
 
 def count_keywords(keywords_section):
@@ -81,42 +79,18 @@ def update_blueprint_keywords(db: Database):
     session.close()
 
 
-def get_dataframes(db: Database) -> tuple[Any, Any, Any]:
-    bp_df = db.get_filtered_bps()
-    posts = {post.post_id: post for post in db.get_posts()}
-    topics = {topic.topic_id: topic for topic in db.get_topics()}
-
-    posts_df = pd.DataFrame(
-        [
-            {_attr: getattr(post, _attr) for _attr in post.__dict__.keys()}
-            for post in posts.values()
-        ]
-    )
-    topics_df = pd.DataFrame(
-        [
-            {_attr: getattr(topic, _attr) for _attr in topic.__dict__.keys()}
-            for topic in topics.values()
-        ]
-    )
-
-    _filtered_topics = bp_df["topic_id"].unique().tolist()
-
-    topics_df = topics_df[topics_df["topic_id"].isin(_filtered_topics)]
-    posts_df = posts_df[posts_df["topic_id"].isin(_filtered_topics)]
-
-    return bp_df, posts_df, topics_df
-
-
 def update_blueprint_keywords_yake(db: Database):
     bp_df, posts_df, topics_df = get_dataframes(db)
-    bp_df["processed_keywords"] = bp_df["extracted_keywords"].apply(keywords_remove_input)
+    bp_df["processed_keywords"] = bp_df["extracted_keywords"].apply(
+        keywords_remove_input
+    )
 
     session = db.open_session()
     for _, topic in tqdm(topics_df.iterrows(), total=topics_df.shape[0]):
         posts_in_topic = posts_df[posts_df["topic_id"] == topic["topic_id"]]
         bps_in_topic = bp_df[bp_df["topic_id"] == topic["topic_id"]]
 
-        yake_kw = yake.KeywordExtractor()
+        yake_kw = yake.KeywordExtractor(n=2)
         tags_set = set(topic["tags"])
         proc_keywords = bps_in_topic["processed_keywords"].tolist()
         proc_keywords = [kwd for sublist in proc_keywords if sublist for kwd in sublist]
@@ -136,8 +110,10 @@ def update_blueprint_keywords_yake(db: Database):
         _kws = yake_kw.extract_keywords(text)
         keywords = [kwd for kwd, _ in _kws]
 
-        for bp in bps_in_topic:
-            db.update_tfidf_keywords(bp["blueprint_id"], keywords, session)
+        for _, bp in bps_in_topic.iterrows():
+            bp_df.loc[bp_df["id"] == bp["id"], "yake_keywords"] = keywords
+            db.update_yake_keywords(bp["id"], keywords[0:2], session)
+        db.update_blueprint_filtered_table(bp_df)
     session.commit()
     session.close()
 
@@ -156,13 +132,13 @@ def update_blueprint_keywords_tfidf(db: Database):
     corpus = []
     topic_to_index = {}
     for idx, topic in tqdm(
-        enumerate(topic_posts["topic_id"].unique()),
+        enumerate(topics_df["topic_id"].unique()),
         desc="Preprocessing and creating corpus by topic",
     ):
-        topic_subset = topic_posts[topic_posts["topic_id"] == topic]
+        topic_subset = posts_df[posts_df["topic_id"] == topic]
         texts = topic_subset["cooked"].tolist()
         texts.insert(0, topic_subset["title"].iloc[0])
-        bps = topic_bp[topic_bp["topic_id"] == topic]
+        bps = bp_df[bp_df["topic_id"] == topic]
         texts.extend(bps["description"].tolist())
         texts.extend(bps["name"].tolist())
         combined_text = " ".join(
@@ -177,14 +153,14 @@ def update_blueprint_keywords_tfidf(db: Database):
 
     session = db.open_session()
     for topic_id in tqdm(
-        topic_bp["topic_id"].unique(), desc="Updating topic tfidf keywords"
+        topics_df["topic_id"].unique(), desc="Updating topic tfidf keywords"
     ):
         topic_index = topic_to_index[topic_id]
         row = res[topic_index]
         top_keywords = extract_top_n_keywords(row, feature_names, top_n=2)
         topic_keywords = {kw: score for kw, score in top_keywords}
 
-        topic_bps = topic_bp[topic_bp["topic_id"] == topic_id]
+        topic_bps = bp_df[bp_df["topic_id"] == topic_id]
         for _, bp_row in topic_bps.iterrows():
             db.update_tfidf_keywords(bp_row["blueprint_id"], topic_keywords, session)
     session.commit()
@@ -193,6 +169,6 @@ def update_blueprint_keywords_tfidf(db: Database):
 
 if __name__ == "__main__":
     db = Database()
-    update_blueprint_keywords(db)
+    # update_blueprint_keywords(db)
     update_blueprint_keywords_yake(db)
-    update_blueprint_keywords_tfidf(db)
+    # update_blueprint_keywords_tfidf(db)

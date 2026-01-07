@@ -500,7 +500,11 @@ class Database:
         blueprint.keywords_tfidf = keywords
         debug(f"Blueprint TF-IDF topic keywords updated: {blueprint_id}")
 
+    def update_blueprint_filtered_table(self, bp_df: pd.DataFrame):
+        with self.engine.connect() as conn:
+            bp_df.to_sql("blueprints_filtered", conn, if_exists="replace", index=False)
+
     def get_filtered_bps(self):
-        with sqlite3.connect("home_assistant_blueprints.sqlite") as conn:
+        with self.engine.connect() as conn:
             bp_df = pd.read_sql_table("blueprints_filtered", conn)
         return bp_df

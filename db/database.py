@@ -4,8 +4,10 @@ from pathlib import Path
 from logging import debug, info, error
 from dotenv import load_dotenv
 import os
+import numpy as np
 from sqlalchemy import cast, Integer, text, func, select
 from sqlalchemy.orm import sessionmaker
+from torch import chunk
 from tqdm import tqdm
 import sqlite3
 import pandas as pd
@@ -507,4 +509,5 @@ class Database:
     def get_filtered_bps(self):
         with self.engine.connect() as conn:
             bp_df = pd.read_sql_table("blueprints_filtered", conn)
+        self.engine.dispose()
         return bp_df

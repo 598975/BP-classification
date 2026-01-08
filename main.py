@@ -61,8 +61,8 @@ def main():
                 )
 
         update_blueprint_keywords(db)
-        update_blueprint_keywords_yake(db)
         update_blueprint_keywords_tfidf(db)
+        update_blueprint_keywords_yake(db)
     except Exception as e:
         logging.error(str(e))
 

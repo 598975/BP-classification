@@ -104,8 +104,8 @@ def update_blueprint_keywords_yake(db: Database):
             ]
             yake_kw.stopword_set = yake_kw.stopword_set.union(
                 {"blueprint", "home", "assistant", "automation"}
-                | tags_set
-                | set(proc_keywords)
+                # | tags_set
+                # | set(proc_keywords)
             )
 
             text = [preprocess(topic["title"])]
@@ -120,9 +120,9 @@ def update_blueprint_keywords_yake(db: Database):
 
             for _, bp in bps_in_topic.iterrows():
                 bp_df.loc[bp_df["id"] == bp["id"], "keywords_yake"] = json.dumps(
-                    keywords[0:2]
+                    keywords[0:4]
                 )
-                db.update_yake_keywords(bp["id"], keywords[0:2], session)
+                db.update_yake_keywords(bp["id"], keywords[0:4], session)
     finally:
         session.commit()
         session.close()

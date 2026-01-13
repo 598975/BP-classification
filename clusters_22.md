@@ -1,5 +1,5 @@
 <details>
-<summary> Cluster 0 </summary>
+<summary> Cluster 0: Notifications & System Management </summary>
 
 Top 5 features: 
 - zone: 14 
@@ -223,7 +223,7 @@ Voice - Find My Phone 📱, https://community.home-assistant.io//t/voice-pe-find
 </details>
 
 <details>
-<summary> Cluster 1 </summary>
+<summary> Cluster 1: Battery & Power Management </summary>
 
 Top 5 features: 
 - battery: 78 
@@ -329,7 +329,7 @@ Predictive Power Control, https://community.home-assistant.io//t/avoid-belgian-e
 </details>
 
 <details>
-<summary> Cluster 2 </summary>
+<summary> Cluster 2: Motion & Lighting Automation </summary>
 
 Top 5 features: 
 - input__binary_sensor: 94 
@@ -559,7 +559,7 @@ Aqara: Presence Sensors, https://community.home-assistant.io//t/blueprint-pack-a
 </details>
 
 <details>
-<summary> Cluster 3 </summary>
+<summary> Cluster 3: Philips Hue & Dimmer Controls </summary>
 
 Top 5 features: 
 - hue: 83 
@@ -671,7 +671,7 @@ Hue Switch – Switch Multi-Flow (Device + Light + Booleans), https://community.
 </details>
 
 <details>
-<summary> Cluster 4 </summary>
+<summary> Cluster 4: Climate & Thermostat Control </summary>
 
 Top 5 features: 
 - temperature: 158 
@@ -929,7 +929,7 @@ Advanced Heating Control, https://community.home-assistant.io//t/advanced-heatin
 </details>
 
 <details>
-<summary> Cluster 5 </summary>
+<summary> Cluster 5: Lutron Pico Remote Controls </summary>
 
 Top 5 features: 
 - pico: 35 
@@ -987,7 +987,7 @@ Lutron Pico 4 Button P02 Actions, https://community.home-assistant.io//t/lutron-
 </details>
 
 <details>
-<summary> Cluster 6 </summary>
+<summary> Cluster 6: Media Player & Audio Control </summary>
 
 Top 5 features: 
 - media: 75 
@@ -1147,7 +1147,7 @@ Aqara: Locks, https://community.home-assistant.io//t/blueprint-pack-aqara-mega-b
 </details>
 
 <details>
-<summary> Cluster 7 </summary>
+<summary> Cluster 7: Notifications & Frigate Alerts </summary>
 
 Top 5 features: 
 - notification: 111 
@@ -1341,7 +1341,7 @@ Coffee Machine – Reminder after runtime (Android interactive), https://communi
 </details>
 
 <details>
-<summary> Cluster 8 </summary>
+<summary> Cluster 8: HASPone Touchscreen UI </summary>
 
 Top 5 features: 
 - page: 52 
@@ -1405,7 +1405,7 @@ HASPone Remove MQTT discovery messages, https://community.home-assistant.io//t/h
 </details>
 
 <details>
-<summary> Cluster 9 </summary>
+<summary> Cluster 9: IKEA Tradfri Remote Controls </summary>
 
 Top 5 features: 
 - ikea: 75 
@@ -1529,7 +1529,7 @@ Zigbee2MQTT - IKEA tradfri, https://community.home-assistant.io//t/zigbee2mqtt-i
 </details>
 
 <details>
-<summary> Cluster 10 </summary>
+<summary> Cluster 10: Switch & Scene Control </summary>
 
 Top 5 features: 
 - switch: 153 
@@ -1749,7 +1749,7 @@ Zigbee2MQTT - Tuya 1 to 4 Buttons, https://community.home-assistant.io//t/zigbee
 </details>
 
 <details>
-<summary> Cluster 11 </summary>
+<summary> Cluster 11: Binary Sensors & Camera Snapshots </summary>
 
 Top 5 features: 
 - input__binary_sensor: 85 
@@ -2033,7 +2033,7 @@ Bambu Lab 3D Printer Cost Notification, https://community.home-assistant.io//t/b
 </details>
 
 <details>
-<summary> Cluster 12 </summary>
+<summary> Cluster 12: Z-Wave Scene Controllers </summary>
 
 Top 5 features: 
 - zwave: 88 
@@ -2241,7 +2241,7 @@ Wallmote Quad Controller, https://community.home-assistant.io//t/aeon-labs-aeote
 </details>
 
 <details>
-<summary> Cluster 13 </summary>
+<summary> Cluster 13: Zigbee2MQTT Scene Switches </summary>
 
 Top 5 features: 
 - switch: 168 
@@ -2455,7 +2455,7 @@ Moes/Tuya 4-Button Scene Switch (TS0044), https://community.home-assistant.io//t
 </details>
 
 <details>
-<summary> Cluster 14 </summary>
+<summary> Cluster 14: ZHA Button & Remote Controls </summary>
 
 Top 5 features: 
 - zigbee: 67 
@@ -2603,7 +2603,7 @@ Z2M 2.0 - IKEA five button remote (with double and triple clicks), https://commu
 </details>
 
 <details>
-<summary> Cluster 15 </summary>
+<summary> Cluster 15: Time-Based Scheduling & Timers </summary>
 
 Top 5 features: 
 - time: 59 
@@ -2781,7 +2781,7 @@ Nordpool cheap hours, https://community.home-assistant.io//t/nordpool-cheapest-h
 </details>
 
 <details>
-<summary> Cluster 16 </summary>
+<summary> Cluster 16: Light Synchronization & Effects </summary>
 
 Top 5 features: 
 - light: 94 
@@ -2991,7 +2991,7 @@ Styrbar Remote Control for Lights (2025-09-17), https://community.home-assistant
 </details>
 
 <details>
-<summary> Cluster 17 </summary>
+<summary> Cluster 17: Generic Remote & Button Controls </summary>
 
 Top 5 features: 
 - remote: 110 
@@ -3171,7 +3171,7 @@ Muller Licht Remote (Zigbee2MQTT), https://community.home-assistant.io//t/zigbee
 </details>
 
 <details>
-<summary> Cluster 18 </summary>
+<summary> Cluster 18: Zigbee2MQTT Button Automation </summary>
 
 Top 5 features: 
 - zigbee2mqtt: 81 
@@ -3371,7 +3371,7 @@ Z2M - Philips Hue Tap Dial Media Control, https://community.home-assistant.io//t
 </details>
 
 <details>
-<summary> Cluster 19 </summary>
+<summary> Cluster 19: Smart Dimmer & Light Control </summary>
 
 Top 5 features: 
 - lights: 44 
@@ -3545,7 +3545,7 @@ Third Reality Zigbee Bulb Factory Reset, https://community.home-assistant.io//t/
 </details>
 
 <details>
-<summary> Cluster 20 </summary>
+<summary> Cluster 20: ZHA Button & Cube Actions </summary>
 
 Top 5 features: 
 - press: 61 
@@ -3737,7 +3737,7 @@ New York Times News — TTS per-speaker, pre-roll, AI optional, https://communit
 </details>
 
 <details>
-<summary> Cluster 21 </summary>
+<summary> Cluster 21: Fan & Humidity Management </summary>
 
 Top 5 features: 
 - fan: 43 

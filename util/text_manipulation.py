@@ -62,6 +62,7 @@ def preprocess(text):
     text = remove_html(text)
     text = text.lower()
     text = re.sub(r"’", r"'", text)
+    text = re.sub(r"‘", r"'", text)
     return text
 
 

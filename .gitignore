@@ -166,3 +166,5 @@ cython_debug/
 test.*
 
 bpclass/
+
+notebooks/output/

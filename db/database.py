@@ -7,7 +7,6 @@ import os
 import numpy as np
 from sqlalchemy import cast, Integer, text, func, select
 from sqlalchemy.orm import sessionmaker
-from torch import chunk
 from tqdm import tqdm
 import sqlite3
 import pandas as pd

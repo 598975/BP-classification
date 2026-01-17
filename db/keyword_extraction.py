@@ -19,7 +19,7 @@ from util.text_manipulation import (
     tfidf_preprocessing,
     keywords_remove_input,
 )
-from util.pandas import get_dataframes
+from util.dataframe_utils import get_dataframes
 
 
 def count_keywords(keywords_section):

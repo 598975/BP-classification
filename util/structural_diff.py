@@ -1,10 +1,15 @@
-from db.models import Blueprint
-from util.text_manipulation import normalize_text
-from util.text_manipulation import parse_yaml
-from db.database import Database
+import json
 from deepdiff import DeepDiff
 import tqdm
 import pandas as pd
+
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parents[1]))
+from util.lang_identification import identify_language_yaml
+from db.database import Database
+from util.text_manipulation import normalize_text, parse_yaml
 
 
 def normalize_blueprint(obj):
@@ -47,7 +52,7 @@ def compare_multiple_bps(codes):
     return comparison
 
 
-def filter_similar_blueprints(bp_df, threshold: float = 0.8) -> pd.DataFrame:
+def filter_similar_blueprints(bp_df: pd.DataFrame, threshold: float = 0.8) -> pd.DataFrame:
     """
     Filter out similar blueprints based on structural similarity.
 
@@ -69,15 +74,15 @@ def filter_similar_blueprints(bp_df, threshold: float = 0.8) -> pd.DataFrame:
             if similarity >= threshold:
                 similar_codes.add(code2)
         bp_df = bp_df.drop(
-            bp_df[(bp_df["topic_id"] == topic_id) & (bp_df["blueprint_code"].isin(similar_codes))].index
+            bp_df[
+                (bp_df["topic_id"] == topic_id)
+                & (bp_df["blueprint_code"].isin(similar_codes))
+            ].index
         )
     return bp_df
 
 
-if __name__ == "__main__":
-    from lang_identification import identify_language_yaml
-
-    db = Database()
+def filter_blueprints(db: Database):
     bps = {bp.id: bp for bp in db.get_all_blueprints()}
     bp_df = pd.DataFrame(
         [
@@ -88,7 +93,15 @@ if __name__ == "__main__":
     bp_df["language"] = bp_df["blueprint_code"].apply(identify_language_yaml)
     bp_df_en = bp_df[bp_df["language"] == "en"]
 
-    filtered_bp_df = filter_similar_blueprints(bp_df_en, threshold=0.8)
+    filtered_bp_df = filter_similar_blueprints(bp_df_en, threshold=0.5)
     
-    print(f"English blueprints: {len(bp_df_en)}")
-    print(f"Unique blueprints: {len(filtered_bp_df)}")
+    # Drop columns that may not exist or are not needed
+    columns_to_drop = ["language", "_sa_instance_state", "post", "topic_title", "post_content"]
+    existing_columns_to_drop = [col for col in columns_to_drop if col in filtered_bp_df.columns]
+    filtered_bp_df = filtered_bp_df.drop(columns=existing_columns_to_drop)
+    
+    filtered_bp_df = filtered_bp_df.reset_index(drop=True)
+    
+    db.update_blueprint_filtered_table(
+        filtered_bp_df,
+    )

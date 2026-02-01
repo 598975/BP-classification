@@ -112,12 +112,27 @@ class Blueprint(Base):
     name = Column(String)
     description = Column(Text)
     extracted_keywords = Column(JSON)
-    topic_keywords = Column(JSON)
     keywords_yake = Column(JSON)
-    keywords_tfidf = Column(JSON)
 
     # Relationship to Post
     post = relationship("Post", back_populates="blueprint")
+
+
+class BlueprintFiltered(Base):
+    __tablename__ = "blueprints_filtered"
+
+    id = Column(Integer, primary_key=True)
+    blueprint_url = Column(Text)
+    blueprint_code = Column(Text)
+    blueprint_hash = Column(String, unique=True)
+    post_id = Column(String, ForeignKey("posts.post_id"))
+    name = Column(String)
+    description = Column(Text)
+    extracted_keywords = Column(JSON)
+    keywords_yake = Column(JSON)
+
+    # Relationship to Post
+    post = relationship("Post")
 
 
 class BlueprintFTS(Base):
@@ -150,7 +165,7 @@ def init_database(
                 connection.execute(text(f"DROP TABLE IF EXISTS {BLUEPRINTS_FTS_TABLE}"))
 
     # Create the tables
-    tables_to_create = [Topic, Post, Blueprint]
+    tables_to_create = [Topic, Post, Blueprint, BlueprintFiltered]
 
     if local:
         # Create the full text search table

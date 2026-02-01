@@ -76,6 +76,7 @@ def update_blueprint_keywords(db: Database):
         desc="Updating keyword counts in the database",
     ):
         db.update_blueprint_keywords(bp_id, keywords, session)
+        db.update_blueprint_filtered_keywords(bp_id, keywords, session)
     session.commit()
     session.close()
 
@@ -90,18 +91,18 @@ def update_blueprint_keywords_yake(db: Database):
     try:
         for _, topic in tqdm(
             topics_df.iterrows(),
-            total=topics_df.shape[0],
+            total=len(topics_df),
             desc="Extracting YAKE keywords",
         ):
             posts_in_topic = posts_df[posts_df["topic_id"] == topic["topic_id"]]
             bps_in_topic = bp_df[bp_df["topic_id"] == topic["topic_id"]]
 
             yake_kw = yake.KeywordExtractor(n=2)
-            tags_set = set(topic["tags"])
+            """ tags_set = set(topic["tags"])
             proc_keywords = bps_in_topic["processed_keywords"].tolist()
             proc_keywords = [
                 kwd for sublist in proc_keywords if sublist for kwd in sublist
-            ]
+            ] """
             yake_kw.stopword_set = yake_kw.stopword_set.union(
                 {"blueprint", "home", "assistant", "automation"}
                 # | tags_set
@@ -123,10 +124,10 @@ def update_blueprint_keywords_yake(db: Database):
                     keywords[0:4]
                 )
                 db.update_yake_keywords(bp["id"], keywords[0:4], session)
+                db.update_yake_keywords_filtered(bp["id"], keywords[0:4], session)
     finally:
         session.commit()
         session.close()
-    bp_df["processed_keywords"] = bp_df["processed_keywords"].apply(json.dumps)
     db.update_blueprint_filtered_table(bp_df)
 
 

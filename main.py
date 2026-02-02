@@ -42,7 +42,7 @@ logging.basicConfig(
 def main():
     try:
         db = Database(local=True, drop_existing_tables=False)
-    
+
         with db.engine.connect() as connection:
             inspector = inspect(connection)
             columns = [col["name"] for col in inspector.get_columns("blueprints")]
@@ -54,11 +54,11 @@ def main():
                 connection.execute(
                     text("ALTER TABLE blueprints ADD COLUMN keywords_yake JSON")
                 )
-        
+
         if args.update_keywords:
             update_blueprint_keywords(db)
             update_blueprint_keywords_yake(db)
-                
+
         if args.filter_bps:
             filter_blueprints(db)
 

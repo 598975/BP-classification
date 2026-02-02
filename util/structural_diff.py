@@ -52,7 +52,9 @@ def compare_multiple_bps(codes):
     return comparison
 
 
-def filter_similar_blueprints(bp_df: pd.DataFrame, threshold: float = 0.8) -> pd.DataFrame:
+def filter_similar_blueprints(
+    bp_df: pd.DataFrame, threshold: float = 0.8
+) -> pd.DataFrame:
     """
     Filter out similar blueprints based on structural similarity.
 
@@ -94,14 +96,22 @@ def filter_blueprints(db: Database):
     bp_df_en = bp_df[bp_df["language"] == "en"]
 
     filtered_bp_df = filter_similar_blueprints(bp_df_en, threshold=0.5)
-    
+
     # Drop columns that may not exist or are not needed
-    columns_to_drop = ["language", "_sa_instance_state", "post", "topic_title", "post_content"]
-    existing_columns_to_drop = [col for col in columns_to_drop if col in filtered_bp_df.columns]
+    columns_to_drop = [
+        "language",
+        "_sa_instance_state",
+        "post",
+        "topic_title",
+        "post_content",
+    ]
+    existing_columns_to_drop = [
+        col for col in columns_to_drop if col in filtered_bp_df.columns
+    ]
     filtered_bp_df = filtered_bp_df.drop(columns=existing_columns_to_drop)
-    
+
     filtered_bp_df = filtered_bp_df.reset_index(drop=True)
-    
+
     db.update_blueprint_filtered_table(
         filtered_bp_df,
     )

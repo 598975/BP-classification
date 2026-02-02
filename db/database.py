@@ -14,7 +14,15 @@ import json
 
 # Add the parent directory to the path to import modules
 sys.path.append(str(Path(__file__).parents[1]))
-from db.models import Base, Topic, Post, Blueprint, BlueprintFiltered, BlueprintFTS, init_database
+from db.models import (
+    Base,
+    Topic,
+    Post,
+    Blueprint,
+    BlueprintFiltered,
+    BlueprintFTS,
+    init_database,
+)
 
 DATABASE_NAME = "home_assistant_blueprints.sqlite"
 SCHEMA_FILE = "db/schema.sql"
@@ -176,7 +184,9 @@ class Database:
 
     def _update_blueprint_filtered(self, session, blueprint_url, **kwargs):
         blueprint = (
-            session.query(BlueprintFiltered).filter_by(blueprint_url=blueprint_url).first()
+            session.query(BlueprintFiltered)
+            .filter_by(blueprint_url=blueprint_url)
+            .first()
         )
         blueprint_id = blueprint.id
         for key, value in kwargs.items():
@@ -186,24 +196,34 @@ class Database:
     def _check_blueprint_filtered_url_exists(self, blueprint_url):
         session = self.open_session()
         blueprint = (
-            session.query(BlueprintFiltered).filter_by(blueprint_url=blueprint_url).first()
+            session.query(BlueprintFiltered)
+            .filter_by(blueprint_url=blueprint_url)
+            .first()
         )
         session.close()
         return bool(blueprint)
 
     def check_blueprint_filtered_hash_exists(self, blueprint_hash, session):
         blueprint = (
-            session.query(BlueprintFiltered).filter_by(blueprint_hash=blueprint_hash).first()
+            session.query(BlueprintFiltered)
+            .filter_by(blueprint_hash=blueprint_hash)
+            .first()
         )
         return bool(blueprint)
 
-    def upsert_blueprint_filtered(self, session, blueprint_url, force_insert=False, **kwargs):
+    def upsert_blueprint_filtered(
+        self, session, blueprint_url, force_insert=False, **kwargs
+    ):
         debug(f"Upserting filtered blueprint: {blueprint_url}")
         if force_insert or not self._check_blueprint_filtered_url_exists(blueprint_url):
-            blueprint_id = self._insert_blueprint_filtered(session, blueprint_url, **kwargs)
+            blueprint_id = self._insert_blueprint_filtered(
+                session, blueprint_url, **kwargs
+            )
             debug(f"Filtered blueprint inserted: {blueprint_url}")
         else:
-            blueprint_id = self._update_blueprint_filtered(session, blueprint_url, **kwargs)
+            blueprint_id = self._update_blueprint_filtered(
+                session, blueprint_url, **kwargs
+            )
             debug(f"Filtered blueprint updated: {blueprint_url}")
         return blueprint_id
 
@@ -321,7 +341,9 @@ class Database:
     def get_blueprints_filtered_by_ids(self, blueprint_ids):
         session = self.open_session()
         blueprints = (
-            session.query(BlueprintFiltered).filter(BlueprintFiltered.id.in_(blueprint_ids)).all()
+            session.query(BlueprintFiltered)
+            .filter(BlueprintFiltered.id.in_(blueprint_ids))
+            .all()
         )
         for blueprint in tqdm(blueprints, desc="Loading filtered blueprints"):
             blueprint.topic_title = blueprint.post.topic.title
@@ -581,16 +603,18 @@ class Database:
 
     def update_blueprint_filtered_table(self, bp_df: pd.DataFrame):
         bp_df_copy = bp_df.copy()
-        
+
         # JSON-serialize dict and list columns for SQLite compatibility
         for col in bp_df_copy.columns:
             if bp_df_copy[col].dtype == "object":
                 for idx, val in enumerate(bp_df_copy[col]):
                     if isinstance(val, (dict, list)):
                         bp_df_copy.loc[idx, col] = json.dumps(val)
-        
+
         with self.engine.connect() as conn:
-            bp_df_copy.to_sql("blueprints_filtered", conn, if_exists="replace", index=False)
+            bp_df_copy.to_sql(
+                "blueprints_filtered", conn, if_exists="replace", index=False
+            )
 
     def get_filtered_bps(self):
         with self.engine.connect() as conn:

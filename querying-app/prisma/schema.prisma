@@ -1,0 +1,204 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model blueprints {
+  id                 Int                  @id @default(autoincrement())
+  blueprint_url      String?
+  blueprint_code     String?
+  blueprint_hash     String?              
+  post_id            String?
+  name               String?
+  description        String?
+  extracted_keywords Unsupported("json")?
+  topic_keywords     Unsupported("json")?
+  keywords_yake      Unsupported("json")?
+  keywords_tfidf     Unsupported("json")?
+  posts              posts?               @relation(fields: [post_id], references: [post_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model blueprints_categorized {
+  blueprint_url      String?
+  blueprint_code     String?
+  post_id            String?
+  description        String?
+  keywords_yake      String?
+  blueprint_hash     String?              
+  id                 BigInt               @id @default(autoincrement())
+  name               String?
+  extracted_keywords String?
+  topic_id           String?
+  tags               String?
+  created_at         DateTime?
+  features           String?
+  fine_cluster       BigInt?
+  top_cluster        BigInt?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model blueprints_filtered {
+  blueprint_url      String?
+  blueprint_code     String?
+  post_id            String?
+  description        String?
+  keywords_yake      String?
+  blueprint_hash     String?
+  id                 BigInt?
+  name               String?
+  extracted_keywords String?
+  topic_id           String?
+  tags               String?
+  created_at         DateTime?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model blueprints_fts {
+  blueprint_id         Unsupported("")?
+  blueprint_code       Unsupported("")?
+  topic_title          Unsupported("")?
+  blueprint_expanded   Unsupported("")?
+  blueprint_declaraion Unsupported("")?
+  blueprint_trigger    Unsupported("")?
+  blueprint_condition  Unsupported("")?
+  blueprint_action     Unsupported("")?
+  blueprint_input      Unsupported("")?
+  post_content         Unsupported("")?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model blueprints_fts_config {
+  k Unsupported("")  @id
+  v Unsupported("")?
+
+  @@ignore
+}
+
+model blueprints_fts_content {
+  id Int              @id @default(autoincrement())
+  c0 Unsupported("")?
+  c1 Unsupported("")?
+  c2 Unsupported("")?
+  c3 Unsupported("")?
+  c4 Unsupported("")?
+  c5 Unsupported("")?
+  c6 Unsupported("")?
+  c7 Unsupported("")?
+  c8 Unsupported("")?
+  c9 Unsupported("")?
+
+  @@ignore
+}
+
+model blueprints_fts_data {
+  id    Int    @id @default(autoincrement())
+  block Bytes?
+
+  @@ignore
+}
+
+model blueprints_fts_docsize {
+  id Int    @id @default(autoincrement())
+  sz Bytes?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model blueprints_fts_idx {
+  segid Unsupported("")
+  term  Unsupported("")
+  pgno  Unsupported("")?
+
+  @@id([segid, term])
+
+  @@ignore
+}
+
+model posts {
+  id                   Int          @id @default(autoincrement())
+  post_url             String?
+  post_id              String?      @unique(map: "sqlite_autoindex_posts_1")
+  name                 String?
+  username             String?
+  created_at           DateTime?
+  cooked               String?
+  post_number          Int?
+  post_type            Int?
+  updated_at           DateTime?
+  reply_count          Int?
+  reply_to_post_number Int?
+  quote_count          Int?
+  incoming_link_count  Int?
+  reads                Int?
+  readers_count        Int?
+  score                Int?
+  topic_id             String?
+  blueprints           blueprints[]
+  topics               topics?      @relation(fields: [topic_id], references: [topic_id], onDelete: NoAction, onUpdate: NoAction)
+  
+  @@ignore
+}
+
+model topics {
+  id                      Int       @id @default(autoincrement())
+  first_post_cooked       String?
+  topic_url               String?
+  topic_id                String?   @unique(map: "sqlite_autoindex_topics_1")
+  title                   String?
+  fancy_title             String?
+  slug                    String?
+  posts_count             Int?
+  reply_count             Int?
+  highest_post_number     Int?
+  image_url               String?
+  created_at              DateTime?
+  last_posted_at          String?
+  visible                 Boolean?
+  closed                  Boolean?
+  archived                Boolean?
+  archetype               String?
+  category_id             Int?
+  pinned_globally         Boolean?
+  featured_link           String?
+  word_count              Int?
+  user_id                 Int?
+  pinned_at               DateTime?
+  pinned_until            String?
+  slow_mode_seconds       Int?
+  draft                   String?
+  draft_key               String?
+  draft_sequence          Int?
+  unpinned                String?
+  pinned                  Boolean?
+  current_post_number     Int?
+  chunk_size              Int?
+  bookmarked              Boolean?
+  topic_timer             String?
+  message_bus_last_id     Int?
+  participant_count       Int?
+  show_read_indicator     Boolean?
+  thumbnails              String?
+  slow_mode_enabled_until String?
+  summarizable            Boolean?
+  post_stream             String?
+  tags                    String?
+  tags_descriptions       String?
+  crawled_at              DateTime?
+  views                   Int?
+  like_count              Int?
+  posts                   posts[]
+
+  @@ignore
+}

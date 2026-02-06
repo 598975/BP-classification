@@ -168,3 +168,5 @@ test.*
 bpclass/
 
 notebooks/output/
+
+Miniconda*

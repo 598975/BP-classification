@@ -21,7 +21,6 @@ model blueprints {
   keywords_tfidf     Unsupported("json")?
   posts              posts?               @relation(fields: [post_id], references: [post_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@ignore
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -148,7 +147,6 @@ model posts {
   blueprints           blueprints[]
   topics               topics?      @relation(fields: [topic_id], references: [topic_id], onDelete: NoAction, onUpdate: NoAction)
   
-  @@ignore
 }
 
 model topics {
@@ -200,5 +198,4 @@ model topics {
   like_count              Int?
   posts                   posts[]
 
-  @@ignore
 }

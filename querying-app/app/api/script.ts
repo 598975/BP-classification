@@ -1,18 +1,50 @@
-import { prisma } from '../libs/prisma'
+import { prisma } from "@/app/libs/prisma"
 
-async function main() {
-  // Example: Fetch all records from a table
-  // Replace 'user' with your actual model name
-  const allBps = await prisma.blueprints_categorized.findMany()
-  console.log('All Bps:', JSON.stringify(allBps, null, 2))
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString()
 }
 
-main()
-  .then(async () => {
-    await prisma.$disconnect()
+export async function getUniqueClusters() {
+  const blueprints = await prisma.blueprints_categorized.findMany({
+    select: {
+      fine_cluster: true,
+      top_cluster: true,
+    },
   })
-  .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
+
+  const clusterMap = new Map<string, Set<string>>()
+  
+  blueprints.forEach(bp => {
+    if (bp.top_cluster !== null && bp.fine_cluster !== null) {
+      const topKey = bp.top_cluster.toString()
+      
+      if (!clusterMap.has(topKey)) {
+        clusterMap.set(topKey, new Set())
+      }
+      
+      clusterMap.get(topKey)!.add(bp.fine_cluster.toString())
+    }
   })
+
+  const topClusters = Array.from(clusterMap.entries())
+    .map(([topCluster, fineClusters]) => ({
+      topCluster: BigInt(topCluster),
+      fineClusters: Array.from(fineClusters)
+        .map(fc => BigInt(fc))
+        .sort((a, b) => Number(a) - Number(b))
+    }))
+    .sort((a, b) => Number(a.topCluster) - Number(b.topCluster))
+
+  return {
+    topClusters,
+    allFineClusters: Array.from(
+      new Set(blueprints.map(bp => bp.fine_cluster).filter(fc => fc !== null))
+    ).sort((a, b) => Number(a!) - Number(b!))
+  }
+}
+
+export async function getAllBps() {
+  const allBps = await prisma.blueprints_categorized.findMany();
+  
+  return allBps;
+}

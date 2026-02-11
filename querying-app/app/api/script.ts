@@ -1,50 +1,74 @@
-import { prisma } from "@/app/libs/prisma"
+import * as prisma from "@/app/libs/prisma";
 
 (BigInt.prototype as any).toJSON = function () {
-  return this.toString()
-}
+	return this.toString();
+};
 
 export async function getUniqueClusters() {
-  const blueprints = await prisma.blueprints_categorized.findMany({
-    select: {
-      fine_cluster: true,
-      top_cluster: true,
-    },
-  })
+	const blueprints = await prisma.prisma.blueprints_categorized.findMany({
+		select: {
+			fine_cluster: true,
+			top_cluster: true,
+		},
+	});
 
-  const clusterMap = new Map<string, Set<string>>()
-  
-  blueprints.forEach(bp => {
-    if (bp.top_cluster !== null && bp.fine_cluster !== null) {
-      const topKey = bp.top_cluster.toString()
-      
-      if (!clusterMap.has(topKey)) {
-        clusterMap.set(topKey, new Set())
-      }
-      
-      clusterMap.get(topKey)!.add(bp.fine_cluster.toString())
-    }
-  })
+	const clusterMap = new Map<string, Set<string>>();
 
-  const topClusters = Array.from(clusterMap.entries())
-    .map(([topCluster, fineClusters]) => ({
-      topCluster: BigInt(topCluster),
-      fineClusters: Array.from(fineClusters)
-        .map(fc => BigInt(fc))
-        .sort((a, b) => Number(a) - Number(b))
-    }))
-    .sort((a, b) => Number(a.topCluster) - Number(b.topCluster))
+	blueprints.forEach((bp) => {
+		if (bp.top_cluster !== null && bp.fine_cluster !== null) {
+			const topKey = bp.top_cluster.toString();
 
-  return {
-    topClusters,
-    allFineClusters: Array.from(
-      new Set(blueprints.map(bp => bp.fine_cluster).filter(fc => fc !== null))
-    ).sort((a, b) => Number(a!) - Number(b!))
-  }
+			if (!clusterMap.has(topKey)) {
+				clusterMap.set(topKey, new Set());
+			}
+
+			clusterMap.get(topKey)!.add(bp.fine_cluster.toString());
+		}
+	});
+
+	const topClusters = Array.from(clusterMap.entries())
+		.map(([topCluster, fineClusters]) => ({
+			topCluster: BigInt(topCluster),
+			fineClusters: Array.from(fineClusters)
+				.map((fc) => BigInt(fc))
+				.sort((a, b) => Number(a) - Number(b)),
+		}))
+		.sort((a, b) => Number(a.topCluster) - Number(b.topCluster));
+
+	return {
+		topClusters,
+		allFineClusters: Array.from(
+			new Set(
+				blueprints.map((bp) => bp.fine_cluster).filter((fc) => fc !== null),
+			),
+		).sort((a, b) => Number(a!) - Number(b!)),
+	};
 }
 
 export async function getAllBps() {
-  const allBps = await prisma.blueprints_categorized.findMany();
-  
-  return allBps;
+	const allBps = await prisma.prisma.blueprints_categorized.findMany();
+
+	return allBps;
+}
+
+export async function getRelatedBlueprints(
+	blueprintId: bigint,
+	fineCluster: bigint | null,
+	limit: number = 6,
+) {
+	if (!fineCluster) {
+		return [];
+	}
+
+	const relatedBps = await prisma.prisma.blueprints_categorized.findMany({
+		where: {
+			fine_cluster: fineCluster,
+			id: {
+				not: blueprintId, // Exclude the current blueprint
+			},
+		},
+		take: limit,
+	});
+
+	return relatedBps;
 }

@@ -1,8 +1,8 @@
-import type { Blueprint } from "@/app/interfaces";
 import { prisma } from "@/app/libs/prisma";
-import { notFound, redirect } from "next/navigation";
-import { features } from "process";
+import { notFound } from "next/navigation";
 import { parse } from "yaml";
+import { getRelatedBlueprints } from "@/app/api/script";
+import { RelatedBlueprints } from "@/app/components/RelatedBlueprints";
 
 export default async function BlueprintPage({
 	params,
@@ -21,6 +21,8 @@ export default async function BlueprintPage({
 	if (!bp) {
 		notFound();
 	}
+
+	const relatedBps = await getRelatedBlueprints(bp.id, bp.fine_cluster);
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -58,15 +60,15 @@ export default async function BlueprintPage({
 										],
 									});
 									displayValue = (
-                                        <details className="cursor-pointer">
-                                            <summary className="font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-                                                Click to expand blueprint code
-                                            </summary>
-                                            <pre className="mt-2 overflow-x-auto bg-gray-900 text-gray-100 p-4 rounded text-sm max-h-96 overflow-y-auto">
-                                                {JSON.stringify(parsed, null, 2)}
-                                            </pre>
-                                        </details>
-                                    );
+										<details className="cursor-pointer">
+											<summary className="font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+												Click to expand blueprint code
+											</summary>
+											<pre className="mt-2 overflow-x-auto bg-gray-900 text-gray-100 p-4 rounded text-sm max-h-96 overflow-y-auto">
+												{JSON.stringify(parsed, null, 2)}
+											</pre>
+										</details>
+									);
 								} catch (error) {
 									// Fallback to raw YAML if parsing fails
 									displayValue = (
@@ -113,6 +115,7 @@ export default async function BlueprintPage({
 							);
 						})}
 				</div>
+				<RelatedBlueprints blueprints={relatedBps} />
 			</main>
 		</div>
 	);

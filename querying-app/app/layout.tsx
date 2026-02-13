@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
+import "instantsearch.css/themes/satellite.css";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -36,6 +37,12 @@ export default function RootLayout({
 								className="text-xl font-bold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
 							>
 								Blueprint Finder
+							</Link>
+							<Link
+								href="/search"
+								className="text-l font-bold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+							>
+								Advanced Search
 							</Link>
 							<Link
 								href="/blueprint"

@@ -24,3 +24,104 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Algolia InstantSearch overrides */
+.ais-SearchBox {
+  margin-bottom: 1rem;
+}
+
+.ais-SearchBox-form,
+.ais-SearchBox-input {
+  background: transparent;
+}
+
+.ais-SearchBox-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.ais-SearchBox-input:focus {
+  border-color: #3b82f6;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ais-SearchBox-input {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f3f4f6;
+  }
+  
+  .ais-SearchBox-input:focus {
+    border-color: #60a5fa;
+  }
+}
+
+/* Fix Hits background for dark mode */
+.ais-Hits,
+.ais-Hits-list,
+.ais-Hits-item {
+  background: transparent !important;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ais-RefinementList-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ais-RefinementList,
+.ais-Panel,
+.ais-DynamicWidgets {
+  background: transparent !important;
+}
+
+.ais-RefinementList-item {
+  padding: 0.25rem 0;
+}
+
+.ais-RefinementList-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: inherit;
+}
+
+.ais-RefinementList-checkbox {
+  margin-right: 0.5rem;
+}
+
+.ais-RefinementList-count {
+  margin-left: auto;
+  padding-left: 0.5rem;
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ais-RefinementList-count {
+    color: #9ca3af;
+  }
+}
+
+.ais-Highlight-highlighted {
+  background-color: #fef3c7;
+  color: #92400e;
+  font-weight: 600;
+  padding: 0 0.125rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ais-Highlight-highlighted {
+    background-color: #78350f;
+    color: #fde68a;
+  }
+}

@@ -3,7 +3,7 @@ import { Blueprint, ParsedQuery } from "../interfaces";
 export const matchesQuery = (
 	bp: Blueprint,
 	query: ParsedQuery,
-	searchFields: string[] = ["name", "description", "keywords_yake"],
+	searchFields: string[] = ["name", "description", "features"],
 ): boolean => {
 	const searchText = searchFields
 		.map((field) => bp[field as keyof Blueprint])

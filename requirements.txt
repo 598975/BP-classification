@@ -11,3 +11,4 @@ tqdm==4.66.2
 utils==1.0.2
 voluptuous==0.13.1
 ipykernel
+algoliasearch>=4.0.0

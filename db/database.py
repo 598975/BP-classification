@@ -20,6 +20,7 @@ from db.models import (
     Post,
     Blueprint,
     BlueprintFiltered,
+    BlueprintCategorized,
     BlueprintFTS,
     init_database,
 )

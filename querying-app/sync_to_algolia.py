@@ -1,5 +1,6 @@
 """
 Sync SQLite database data to Algolia for fuzzy search capabilities.
+Uses the blueprints_categorized table for categorized and clustered blueprints.
 """
 
 import os
@@ -10,9 +11,9 @@ from algoliasearch.search.client import SearchClientSync
 from tqdm import tqdm
 
 # Add the parent directory to the path to import modules
-sys.path.append(str(Path(__file__).parent))
+sys.path.append(str(Path(__file__).parent.parent))
 from db.database import Database
-from db.models import Post, Topic, Blueprint
+from db.models import BlueprintCategorized
 
 load_dotenv()
 
@@ -39,21 +40,15 @@ class AlgoliaSync:
             index_settings={
                 "searchableAttributes": [
                     "name,description",
-                    "topic_title",
-                    "post_content",
                     "blueprint_code_snippet",
-                    "keywords"
+                    "features"
                 ],
                 "attributesForFaceting": [
-                    "searchable(category)",
-                    "searchable(tags)",
-                    "topic_id"
+                    "topic_id",
+                    "fine_cluster",
+                    "top_cluster"
                 ],
-                "customRanking": [
-                    "desc(views)",
-                    "desc(like_count)",
-                    "desc(reply_count)"
-                ],
+                "advancedSyntax": True,
                 "typoTolerance": True,
                 "minWordSizefor1Typo": 4,
                 "minWordSizefor2Typos": 8,
@@ -61,7 +56,7 @@ class AlgoliaSync:
         )
         print("✓ Index settings configured")
     
-    def prepare_blueprint_record(self, blueprint, post, topic):
+    def prepare_blueprint_record(self, blueprint):
         """Transform database models into Algolia record."""
         # Truncate large fields to stay under Algolia"s 10KB limit
         # Leave room for other fields (~2KB), so limit text fields to ~8KB total
@@ -80,10 +75,6 @@ class AlgoliaSync:
         blueprint_code = blueprint.blueprint_code or ""
         blueprint_code_snippet = truncate_text(blueprint_code, max_bytes=1500)
         
-        # Truncate post content
-        post_content = post.cooked if post else ""
-        post_content_truncated = truncate_text(post_content, max_bytes=2000)
-        
         # Truncate description
         description = blueprint.description or ""
         description_truncated = truncate_text(description, max_bytes=1000)
@@ -94,57 +85,41 @@ class AlgoliaSync:
             "blueprint_hash": blueprint.blueprint_hash,
             "name": blueprint.name or "",
             "description": description_truncated,
-            "blueprint_code_snippet": blueprint_code_snippet,  # Renamed to indicate truncation
+            "blueprint_code_snippet": blueprint_code_snippet,
             "blueprint_url": blueprint.blueprint_url or "",
             
-            # Keywords
-            "keywords": blueprint.extracted_keywords or [],
-            "keywords_yake": blueprint.keywords_yake or [],
+            # Clustering information
+            "fine_cluster": blueprint.fine_cluster,
+            "top_cluster": blueprint.top_cluster,
+            "features": blueprint.features or "",
             
-            # Post data
-            "post_id": post.post_id if post else None,
-            "post_url": post.post_url if post else None,
-            "post_content": post_content_truncated,
-            "post_created_at": post.created_at.isoformat() if post and post.created_at else None,
-            "username": post.username if post else None,
-            
-            # Topic data
-            "topic_id": topic.topic_id if topic else None,
-            "topic_title": topic.title if topic else "",
-            "topic_url": topic.topic_url if topic else None,
-            "category_id": topic.category_id if topic else None,
-            "tags": topic.tags.split("|") if topic and topic.tags else [],
-            "views": topic.views if topic else 0,
-            "like_count": topic.like_count if topic else 0,
-            "reply_count": topic.reply_count if topic else 0,
-            "created_at": topic.created_at.isoformat() if topic and topic.created_at else None,
+            # Basic metadata from blueprints_categorized
+            "post_id": blueprint.post_id,
+            "topic_id": blueprint.topic_id,
+            "created_at": blueprint.created_at.isoformat() if blueprint.created_at else None,
         }
         
         return record
     
     def sync_blueprints(self, batch_size=1000):
-        """Sync all blueprints from SQLite to Algolia."""
+        """Sync all blueprints from SQLite to Algolia using blueprints_categorized table."""
         session = self.db.open_session()
         
         try:
-            # Query all blueprints with related post and topic data
-            query = session.query(Blueprint, Post, Topic).join(
-                Post, Blueprint.post_id == Post.post_id
-            ).join(
-                Topic, Post.topic_id == Topic.topic_id
-            )
+            # Query all blueprints_categorized
+            query = session.query(BlueprintCategorized)
             
             total_count = query.count()
-            print(f"Syncing {total_count} blueprints to Algolia...")
+            print(f"Syncing {total_count} blueprints from blueprints_categorized to Algolia...")
             
             records = []
             skipped = 0
             synced = 0
             
             with tqdm(total=total_count) as pbar:
-                for blueprint, post, topic in query:
+                for blueprint in query:
                     try:
-                        record = self.prepare_blueprint_record(blueprint, post, topic)
+                        record = self.prepare_blueprint_record(blueprint)
                         
                         # Check estimated record size (rough estimate)
                         record_size = len(str(record).encode("utf-8"))
@@ -217,7 +192,7 @@ def main():
     """Main function to run the sync."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Sync SQLite data to Algolia")
+    parser = argparse.ArgumentParser(description="Sync SQLite data to Algolia from blueprints_categorized table")
     parser.add_argument(
         "--clear",
         action="store_true",

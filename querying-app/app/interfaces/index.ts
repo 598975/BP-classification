@@ -17,9 +17,3 @@ export type BpWithRelations = Blueprint & {
 	topic: Topic | undefined;
 };
 
-export type ParsedQuery = {
-	type: "AND" | "OR" | "NOT" | "PHRASE" | "TERM" | "GROUP";
-	value?: string;
-	children?: ParsedQuery[];
-	negated?: boolean;
-};

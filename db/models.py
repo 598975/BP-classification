@@ -130,6 +130,32 @@ class BlueprintFiltered(Base):
     description = Column(Text)
     extracted_keywords = Column(JSON)
     keywords_yake = Column(JSON)
+    topic_id = Column(String)
+    tags = Column(Text)
+    created_at = Column(DateTime)
+
+    # Relationship to Post
+    post = relationship("Post")
+
+
+class BlueprintCategorized(Base):
+    __tablename__ = "blueprints_categorized"
+
+    id = Column(Integer, primary_key=True)
+    blueprint_url = Column(Text)
+    blueprint_code = Column(Text)
+    blueprint_hash = Column(String, unique=True)
+    post_id = Column(String, ForeignKey("posts.post_id"))
+    name = Column(String)
+    description = Column(Text)
+    extracted_keywords = Column(JSON)
+    keywords_yake = Column(JSON)
+    topic_id = Column(String)
+    tags = Column(Text)
+    created_at = Column(DateTime)
+    features = Column(Text)
+    fine_cluster = Column(Integer)
+    top_cluster = Column(Integer)
 
     # Relationship to Post
     post = relationship("Post")

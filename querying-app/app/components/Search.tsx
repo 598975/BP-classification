@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { InstantSearchNext } from "react-instantsearch-nextjs";
 import {
 	SearchBox,

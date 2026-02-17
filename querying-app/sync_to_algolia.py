@@ -4,6 +4,7 @@ Uses the blueprints_categorized table for categorized and clustered blueprints.
 """
 
 import os
+import re
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
@@ -46,7 +47,10 @@ class AlgoliaSync:
                 "attributesForFaceting": [
                     "topic_id",
                     "fine_cluster",
-                    "top_cluster"
+                    "top_cluster",
+                    "inputs",
+                    "outputs",
+                    "searchable(features)"
                 ],
                 "advancedSyntax": True,
                 "typoTolerance": True,
@@ -79,6 +83,24 @@ class AlgoliaSync:
         description = blueprint.description or ""
         description_truncated = truncate_text(description, max_bytes=1000)
         
+        features = blueprint.features.split(" ") if blueprint.features else []
+        features = [item for item in features if item != "<PAD>"]
+        feature_list = []
+        inputs = []
+        outputs = []
+        
+        for kwd in features:
+            in_out = re.search(r"(input__|output__)(input_|output_)?", kwd)
+            kwd = kwd.removeprefix(in_out.group()) if in_out else kwd
+            kwd = kwd.replace("_", " ").strip()
+            in_out = in_out.group(1) if in_out else None
+            feature_list.append(kwd)
+            if in_out == "input__":
+                inputs.append(kwd)
+            elif in_out == "output__":
+                outputs.append(kwd)               
+
+        
         record = {
             "objectID": str(blueprint.id),
             "blueprint_id": blueprint.id,
@@ -87,11 +109,13 @@ class AlgoliaSync:
             "description": description_truncated,
             "blueprint_code_snippet": blueprint_code_snippet,
             "blueprint_url": blueprint.blueprint_url or "",
+            "inputs": inputs,
+            "outputs": outputs,
             
             # Clustering information
             "fine_cluster": blueprint.fine_cluster,
             "top_cluster": blueprint.top_cluster,
-            "features": blueprint.features or "",
+            "features": feature_list,
             
             # Basic metadata from blueprints_categorized
             "post_id": blueprint.post_id,

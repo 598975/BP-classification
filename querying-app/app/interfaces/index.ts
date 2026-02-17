@@ -16,4 +16,3 @@ export type BpWithRelations = Blueprint & {
 	post: Post | undefined;
 	topic: Topic | undefined;
 };
-

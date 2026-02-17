@@ -51,24 +51,4 @@ export async function getAllBps() {
 	return allBps;
 }
 
-export async function getRelatedBlueprints(
-	blueprintId: bigint,
-	fineCluster: bigint | null,
-	limit: number = 6,
-) {
-	if (!fineCluster) {
-		return [];
-	}
 
-	const relatedBps = await prisma.prisma.blueprints_categorized.findMany({
-		where: {
-			fine_cluster: fineCluster,
-			id: {
-				not: blueprintId, // Exclude the current blueprint
-			},
-		},
-		take: limit,
-	});
-
-	return relatedBps;
-}

@@ -1,7 +1,6 @@
 import { prisma } from "@/app/libs/prisma";
 import { notFound } from "next/navigation";
 import { parse } from "yaml";
-import { getRelatedBlueprints } from "@/app/api/script";
 import { RelatedBlueprints } from "@/app/components/RelatedBlueprints";
 
 export default async function BlueprintPage({
@@ -21,8 +20,6 @@ export default async function BlueprintPage({
 	if (!bp) {
 		notFound();
 	}
-
-	const relatedBps = await getRelatedBlueprints(bp.id, bp.fine_cluster);
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -115,7 +112,7 @@ export default async function BlueprintPage({
 							);
 						})}
 				</div>
-				<RelatedBlueprints blueprints={relatedBps} />
+				<RelatedBlueprints id={id} />
 			</main>
 		</div>
 	);

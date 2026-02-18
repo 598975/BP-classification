@@ -10,7 +10,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@prisma/adapter-better-sqlite3": "^7.3.0",
+    "@prisma/adapter-better-sqlite3": "^7.4.0",
     "@prisma/client": "^7.3.0",
     "@searchkit/api": "^4.14.0",
     "@searchkit/instantsearch-client": "^4.14.1",

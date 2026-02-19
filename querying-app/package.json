@@ -14,7 +14,7 @@
     "@prisma/client": "^7.4.0",
     "@searchkit/api": "^4.14.0",
     "@searchkit/instantsearch-client": "^4.14.1",
-    "algoliasearch": "^5.48.1",
+    "algoliasearch": "^5.49.0",
     "dotenv": "^17.3.1",
     "instantsearch.css": "^8.10.0",
     "mkdirp": "^3.0.1",

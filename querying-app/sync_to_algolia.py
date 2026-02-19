@@ -48,8 +48,8 @@ class AlgoliaSync:
                     "topic_id",
                     "fine_cluster",
                     "top_cluster",
-                    "inputs",
-                    "outputs",
+                    "searchable(inputs)",
+                    "searchable(outputs)",
                     "searchable(features)"
                 ],
                 "advancedSyntax": True,
@@ -79,7 +79,6 @@ class AlgoliaSync:
         blueprint_code = blueprint.blueprint_code or ""
         blueprint_code_snippet = truncate_text(blueprint_code, max_bytes=1500)
         
-        # Truncate description
         description = blueprint.description or ""
         description_truncated = truncate_text(description, max_bytes=1000)
         
@@ -139,7 +138,6 @@ class AlgoliaSync:
             records = []
             skipped = 0
             synced = 0
-            
             with tqdm(total=total_count) as pbar:
                 for blueprint in query:
                     try:

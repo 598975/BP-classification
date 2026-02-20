@@ -1,4 +1,4 @@
-import React, { useContext, use } from "react";
+import { useContext, use } from "react";
 import { useInstantSearch, InstantSearchRSCContext } from "react-instantsearch";
 
 export function QueryId() {

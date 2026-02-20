@@ -9,6 +9,7 @@ import {
 	HitsPerPage,
 	Stats,
 	ClearRefinements,
+	DynamicWidgets,
 } from "react-instantsearch";
 import { client } from "../libs/client";
 import { Hit } from "./Hit";
@@ -32,125 +33,129 @@ export function Search() {
 				<div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 					<aside className="lg:col-span-1">
 						<div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto p-4 bg-white dark:bg-gray-700 rounded-lg shadow-sm">
-							<div>
-								<button
-									onClick={() => setFeatureIsOpen(!featureIsOpen)}
-									className=" flex items-center justify-between p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors"
-									aria-label={
-										featureIsOpen ? "Collapse features" : "Expand features"
-									}
-								>
-									<h2 className="text-lg font-semibold  text-gray-900 dark:text-gray-100">
-										Features
-									</h2>
-									<svg
-										className={`h-4.5 w-4.5 transition-transform ${
-											featureIsOpen ? "rotate-180" : ""
-										}`}
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
+							
+								<div>
+									<button
+										onClick={() => setFeatureIsOpen(!featureIsOpen)}
+										className=" flex items-center justify-between p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors"
+										aria-label={
+											featureIsOpen ? "Collapse features" : "Expand features"
+										}
 									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M19 9l-7 7-7-7"
-										/>
-									</svg>
-								</button>
+										<h2 className="text-lg font-semibold  text-gray-900 dark:text-gray-100">
+											Features
+										</h2>
+										<svg
+											className={`h-4.5 w-4.5 transition-transform ${
+												featureIsOpen ? "rotate-180" : ""
+											}`}
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+												d="M19 9l-7 7-7-7"
+											/>
+										</svg>
+									</button>
 
-								{featureIsOpen && (
-									<Panel>
-										<RefinementList
-											attribute="features"
-											searchable={true}
-											searchablePlaceholder="Search for feature"
-											showMore={true}
-											operator="and"
-										/>
-									</Panel>
-								)}
-							</div>
-							<div>
-								<button
-									onClick={() => setInputsIsOpen(!inputIsOpen)}
-									className=" flex items-center justify-between p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors"
-									aria-label={inputIsOpen ? "Collapse inputs" : "Expand inputs"}
-								>
-									<h2 className="text-lg font-semibold  text-gray-900 dark:text-gray-100">
-										Inputs
-									</h2>
-									<svg
-										className={`h-4.5 w-4.5 transition-transform ${
-											inputIsOpen ? "rotate-180" : ""
-										}`}
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
+									{featureIsOpen && (
+										<Panel>
+											<RefinementList
+												attribute="features"
+												searchable={true}
+												searchablePlaceholder="Search for feature"
+												showMore={true}
+												operator="and"
+											/>
+										</Panel>
+									)}
+								</div>
+								<div>
+									<button
+										onClick={() => setInputsIsOpen(!inputIsOpen)}
+										className=" flex items-center justify-between p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors"
+										aria-label={
+											inputIsOpen ? "Collapse inputs" : "Expand inputs"
+										}
 									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M19 9l-7 7-7-7"
-										/>
-									</svg>
-								</button>
+										<h2 className="text-lg font-semibold  text-gray-900 dark:text-gray-100">
+											Inputs
+										</h2>
+										<svg
+											className={`h-4.5 w-4.5 transition-transform ${
+												inputIsOpen ? "rotate-180" : ""
+											}`}
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+												d="M19 9l-7 7-7-7"
+											/>
+										</svg>
+									</button>
 
-								{inputIsOpen && (
-									<Panel>
-										<RefinementList
-											attribute="inputs"
-											searchable={true}
-											searchablePlaceholder="Search for input"
-											showMore={true}
-											operator="and"
-										/>
-									</Panel>
-								)}
-							</div>
-							<div>
-								<button
-									onClick={() => setOutputIsOpen(!outputIsOpen)}
-									className=" flex items-center justify-between p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors"
-									aria-label={
-										outputIsOpen ? "Collapse outputs" : "Expand outputs"
-									}
-								>
-									<h2 className="text-lg font-semibold  text-gray-900 dark:text-gray-100">
-										Outputs
-									</h2>
-									<svg
-										className={`h-4.5 w-4.5 transition-transform ${
-											outputIsOpen ? "rotate-180" : ""
-										}`}
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
+									{inputIsOpen && (
+										<Panel>
+											<RefinementList
+												attribute="inputs"
+												searchable={true}
+												searchablePlaceholder="Search for input"
+												showMore={true}
+												operator="and"
+											/>
+										</Panel>
+									)}
+								</div>
+								<div>
+									<button
+										onClick={() => setOutputIsOpen(!outputIsOpen)}
+										className=" flex items-center justify-between p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors"
+										aria-label={
+											outputIsOpen ? "Collapse outputs" : "Expand outputs"
+										}
 									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M19 9l-7 7-7-7"
-										/>
-									</svg>
-								</button>
+										<h2 className="text-lg font-semibold  text-gray-900 dark:text-gray-100">
+											Outputs
+										</h2>
+										<svg
+											className={`h-4.5 w-4.5 transition-transform ${
+												outputIsOpen ? "rotate-180" : ""
+											}`}
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+												d="M19 9l-7 7-7-7"
+											/>
+										</svg>
+									</button>
 
-								{outputIsOpen && (
-									<Panel>
-										<RefinementList
-											attribute="outputs"
-											searchable={true}
-											searchablePlaceholder="Search for output"
-											showMore={true}
-											operator="and"
-										/>
-									</Panel>
-								)}
-							</div>
-							<ClearRefinements />
+									{outputIsOpen && (
+										<Panel>
+											<RefinementList
+												attribute="outputs"
+												searchable={true}
+												searchablePlaceholder="Search for output"
+												showMore={true}
+												operator="and"
+											/>
+										</Panel>
+									)}
+								</div>
+								<ClearRefinements />
+
 						</div>
 					</aside>
 					<main className="lg:col-span-3 bg-white dark:bg-gray-700 p-6 rounded-lg shadow-sm">

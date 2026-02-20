@@ -65,6 +65,33 @@ class AlgoliaSync:
         # Truncate large fields to stay under Algolia"s 10KB limit
         # Leave room for other fields (~2KB), so limit text fields to ~8KB total
         
+        top_cluster_names = {
+            0: "Switches and Buttons",
+            1: "Sensors",
+            2: "Notifications",
+            3: "Reminders and Recurring Tasks",
+            4: "Media Playback and Control",
+            5: "Magic Cubes",
+            6: "Sensor Detection Notifications",
+            7: "HASPone",
+            8: "AWTRIX",
+            9: "State Control and Synchronization"
+        }
+        
+        def _handle_top_clusters(cluster_value):
+            return top_cluster_names.get(cluster_value)
+
+        fine_cluster_names = {
+            0: "Zwave Switches",
+            1: "Zwave Buttons",
+        }
+        
+        def _handle_fine_clusters(cluster_value):
+            return fine_cluster_names.get(cluster_value)
+            
+        def handle_clusters(top_cluster, fine_cluster):
+            
+        
         def truncate_text(text, max_bytes=3000):
             """Truncate text to max bytes while preserving UTF-8 encoding."""
             if not text:

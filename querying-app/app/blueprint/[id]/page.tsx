@@ -2,6 +2,7 @@ import { prisma } from "@/app/libs/prisma";
 import { notFound } from "next/navigation";
 import { parse } from "yaml";
 import { RelatedBlueprints } from "@/app/components/RelatedBlueprints";
+import Link from "next/link";
 
 export default async function BlueprintPage({
 	params,
@@ -29,6 +30,7 @@ export default async function BlueprintPage({
 						<span className="italic text-gray-400">Unnamed Blueprint</span>
 					)}
 				</h1>
+
 				<p className="text-gray-600 dark:text-gray-400 mb-4">
 					{bp.description || "No description available."}
 				</p>
@@ -85,6 +87,18 @@ export default async function BlueprintPage({
 									(feature) => feature !== "<PAD>",
 								);
 								displayValue = featuresArray ? featuresArray.toString() : "N/A";
+							} else if (key === "topic_id") {
+								key = "Topic link";
+								displayValue = (
+									<Link
+										href={`https://community.home-assistant.io/t/${bp.topic_id}`}
+										className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+										rel="noopener noreferrer"
+										target="_blank"
+									>
+										Link to Home Assistant forum topic
+									</Link>
+								);
 							} else {
 								displayValue =
 									value !== null && value !== undefined

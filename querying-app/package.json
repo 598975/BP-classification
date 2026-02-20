@@ -10,11 +10,12 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@prisma/adapter-better-sqlite3": "^7.4.0",
-    "@prisma/client": "^7.4.0",
+    "@prisma/adapter-better-sqlite3": "^7.4.1",
+    "@prisma/client": "^7.4.1",
     "@searchkit/api": "^4.14.0",
     "@searchkit/instantsearch-client": "^4.14.1",
     "algoliasearch": "^5.49.0",
+    "better-sqlite3": "^12.6.2",
     "dotenv": "^17.3.1",
     "instantsearch.css": "^8.10.0",
     "mkdirp": "^3.0.1",
@@ -22,7 +23,7 @@
     "open": "^11.0.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-instantsearch": "^7.23.2",
+    "react-instantsearch": "^7.24.0",
     "react-instantsearch-core": "^7.24.0",
     "react-instantsearch-nextjs": "^1.0.14",
     "sqlite": "^5.1.1",
@@ -36,9 +37,9 @@
     "@types/node": "^20.19.32",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
+    "eslint": "^10.0.0",
     "eslint-config-next": "16.1.6",
-    "prisma": "^7.3.0",
+    "prisma": "^7.4.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

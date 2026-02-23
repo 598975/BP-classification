@@ -1,13 +1,7 @@
-import { Hit as AlgoliaHit } from "instantsearch.js";
 import { Highlight } from "react-instantsearch";
 import Link from "next/link";
+import { HitProps } from "../interfaces";
 
-type HitProps = {
-	hit: AlgoliaHit<{
-		name: string;
-		description?: string;
-	}>;
-};
 
 export function Hit({ hit }: HitProps) {
 	return (

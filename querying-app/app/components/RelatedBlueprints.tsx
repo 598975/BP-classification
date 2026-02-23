@@ -2,6 +2,7 @@
 import { RelatedProducts, InstantSearch, Carousel } from "react-instantsearch";
 import { client } from "../libs/client";
 import { Hit } from "./Hit";
+import { HitProps } from "../interfaces";
 
 export function RelatedBlueprints({ id }: { id: string }) {
 	return (
@@ -14,7 +15,7 @@ export function RelatedBlueprints({ id }: { id: string }) {
 				<RelatedProducts
 					objectIDs={[id]}
 					layoutComponent={Carousel}
-					itemComponent={({ item }) => <Hit hit={item} />}
+					itemComponent={({ item }) => <Hit hit={item as HitProps["hit"]} />}
 					headerComponent={({ classNames, items }) => (
 						<h2 className={classNames.title}>
 							Recommendations ({items.length} items)

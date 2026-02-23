@@ -1,4 +1,6 @@
 import { prisma } from "@/app/libs/prisma";
+import { Hit as AlgoliaHit } from "instantsearch.js";
+
 
 (BigInt.prototype as any).toJSON = function () {
 	return this.toString();
@@ -15,4 +17,11 @@ export type Blueprint = NonNullable<
 export type BpWithRelations = Blueprint & {
 	post: Post | undefined;
 	topic: Topic | undefined;
+};
+
+export type HitProps = {
+	hit: AlgoliaHit<{
+		name: string;
+		description?: string;
+	}>;
 };

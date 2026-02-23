@@ -1,4 +1,4 @@
-homeassistant==2026.2.2
+homeassistant==2026.2.3
 langid==1.1.6
 matplotlib==3.8.3
 nltk==3.9

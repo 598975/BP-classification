@@ -138,56 +138,7 @@ def extract_top_n_keywords(row, features, top_n=2):
     top_n_scores = [row_array[i] for i in top_n_indices]
     return list(zip(top_n_terms, top_n_scores))
 
-
-def update_blueprint_keywords_tfidf(db: Database):
-    bp_df, posts_df, topics_df = get_dataframes(db)
-
-    corpus = []
-    topic_to_index = {}
-    for idx, (_, topic) in enumerate(
-        tqdm(
-            topics_df.iterrows(),
-            total=topics_df.shape[0],
-            desc="Building TF-IDF corpus",
-        )
-    ):
-        posts_in_topic = posts_df[posts_df["topic_id"] == topic["topic_id"]]
-        texts = posts_in_topic["cooked"].tolist()
-        texts.insert(0, topic["title"])
-
-        bps_in_topic = bp_df[bp_df["topic_id"] == topic["topic_id"]]
-        texts.extend(bps_in_topic["description"].tolist())
-        texts.extend(bps_in_topic["name"].tolist())
-
-        combined_text = " ".join(
-            [tfidf_preprocessing(text, topic["tags"]) for text in texts]
-        )
-        corpus.append(combined_text)
-        topic_to_index[topic["topic_id"]] = idx
-
-    tfidf = TfidfVectorizer(min_df=1, max_df=0.95)
-    tfidf_matrix = tfidf.fit_transform(corpus)
-    feature_names = tfidf.get_feature_names_out()
-
-    session = db.open_session()
-    for _, topic in tqdm(
-        topics_df.iterrows(), total=topics_df.shape[0], desc="Updating TF-IDF keywords"
-    ):
-        topic_id = topic["topic_id"]
-        topic_index = topic_to_index[topic_id]
-        row = tfidf_matrix[topic_index]
-        top_keywords = extract_top_n_keywords(row, feature_names, top_n=2)
-        topic_keywords = {kw: score for kw, score in top_keywords}
-
-        bps_in_topic = bp_df[bp_df["topic_id"] == topic_id]
-        for _, bp in bps_in_topic.iterrows():
-            db.update_tfidf_keywords(bp["id"], topic_keywords, session)
-    session.commit()
-    session.close()
-
-
 if __name__ == "__main__":
     db = Database()
-    # update_blueprint_keywords(db)
+    update_blueprint_keywords(db)
     update_blueprint_keywords_yake(db)
-    # update_blueprint_keywords_tfidf(db)

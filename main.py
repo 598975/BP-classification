@@ -1,10 +1,9 @@
 from db.database import Database
 from db.keyword_extraction import (
     update_blueprint_keywords,
-    update_blueprint_keywords_tfidf,
     update_blueprint_keywords_yake,
 )
-from util.structural_diff import filter_blueprints
+from util.filtering import filter_blueprints
 import logging
 import argparse
 from sqlalchemy.sql import text

@@ -36,10 +36,8 @@ def normalize_blueprint(obj):
 
 
 def structural_diff(code1, code2):
-    diff = DeepDiff(code1, code2, ignore_order=True)
-    diff_size = len(str(diff))
-    total_size = len(str(code1)) + len(str(code2))
-    return diff, 1 - diff_size / total_size
+    diff = DeepDiff(code1, code2, ignore_order=True, get_deep_distance=True)
+    return diff, diff["deep_distance"] if "deep_distance" in diff else 0.0
 
 
 def compare_multiple_bps(codes):
@@ -72,7 +70,7 @@ def filter_similar_blueprints(
         comparisons = compare_multiple_bps(codes)
         similar_codes = set()
         for code1, code2, similarity in comparisons:
-            if similarity >= threshold:
+            if similarity <= threshold:
                 similar_codes.add(code2)
         bp_df = bp_df.drop(
             bp_df[

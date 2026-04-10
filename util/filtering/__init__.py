@@ -9,6 +9,7 @@ from util.filtering.lang_identification import identify_language_yaml
 from db.database import Database
 from util.filtering.structural_diff import filter_similar_blueprints
 
+
 def filter_blueprints(db: Database):
     bps = {bp.id: bp for bp in db.get_all_blueprints()}
     bp_df = pd.DataFrame(
@@ -40,4 +41,3 @@ def filter_blueprints(db: Database):
     db.update_blueprint_filtered_table(
         filtered_bp_df,
     )
-    

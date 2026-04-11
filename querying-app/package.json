@@ -19,7 +19,7 @@
     "dotenv": "^17.3.1",
     "instantsearch.css": "^8.10.0",
     "mkdirp": "^3.0.1",
-    "next": "16.1.6",
+    "next": "16.2.3",
     "open": "^11.0.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",

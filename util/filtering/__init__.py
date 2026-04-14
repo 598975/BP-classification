@@ -21,7 +21,7 @@ def filter_blueprints(db: Database):
     bp_df["language"] = bp_df["blueprint_code"].apply(identify_language_yaml)
     bp_df_en = bp_df[bp_df["language"] == "en"]
 
-    filtered_bp_df = filter_similar_blueprints(bp_df_en, threshold=0.5)
+    filtered_bp_df = filter_similar_blueprints(bp_df_en, threshold=0.1)
 
     # Drop columns that may not exist or are not needed
     columns_to_drop = [

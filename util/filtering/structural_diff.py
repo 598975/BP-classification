@@ -36,7 +36,7 @@ def normalize_blueprint(obj):
 
 
 def structural_diff(code1, code2):
-    diff = DeepDiff(code1, code2, ignore_order=True, get_deep_distance=True)
+    diff = DeepDiff(code1, code2, ignore_order=True, get_deep_distance=True, cutoff_distance_for_pairs=1, cutoff_intersection_for_pairs=1)
     return diff, float(diff["deep_distance"]) if "deep_distance" in diff else 0.0
 
 

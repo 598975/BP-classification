@@ -1,5 +1,6 @@
 import langid
-from ..text_manipulation import parse_yaml, get_leaf_values
+
+from ..text_manipulation import get_leaf_values, parse_yaml
 
 
 def identify_language_yaml(bp_code) -> str:

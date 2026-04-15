@@ -1,12 +1,11 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import pandas as pd
 
-
 sys.path.append(str(Path(__file__).parents[1]))
-from util.filtering.lang_identification import identify_language_yaml
 from db.database import Database
+from util.filtering.lang_identification import identify_language_yaml
 from util.filtering.structural_diff import filter_similar_blueprints
 
 

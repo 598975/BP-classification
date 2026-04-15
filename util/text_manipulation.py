@@ -1,11 +1,12 @@
-import re
-import yaml
-import logging
-from bs4 import BeautifulSoup
-import nltk
-from nltk.stem import WordNetLemmatizer
-from nltk.corpus import stopwords
 import json
+import logging
+import re
+
+import nltk
+import yaml
+from bs4 import BeautifulSoup
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 
 nltk.download("wordnet")
 

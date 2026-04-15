@@ -1,7 +1,4 @@
-"""
-Sync SQLite database data to Algolia for fuzzy search capabilities.
-Uses the blueprints_categorized table for categorized and clustered blueprints.
-"""
+
 
 import os
 import re

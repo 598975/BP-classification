@@ -1,25 +1,24 @@
 import json
-import pandas as pd
-from collections import Counter
 import sys
+from collections import Counter
 from pathlib import Path
-from tqdm import tqdm
-import yake
-from sklearn.feature_extraction.text import TfidfVectorizer
+
 import numpy as np
+import pandas as pd
+import yake
+from tqdm import tqdm
 
 # Add the parent directory to the path to import modules
 sys.path.append(str(Path(__file__).parents[1]))
 from db.database import Database
 from util.blueprint import expand_blueprint, extract_keywords
-from util.text_manipulation import (
-    parse_yaml,
-    normalize_text,
-    preprocess,
-    tfidf_preprocessing,
-    keywords_remove_input,
-)
 from util.dataframe_utils import get_dataframes
+from util.text_manipulation import (
+    keywords_remove_input,
+    normalize_text,
+    parse_yaml,
+    preprocess,
+)
 
 
 def count_keywords(keywords_section):
@@ -137,6 +136,7 @@ def extract_top_n_keywords(row, features, top_n=2):
     top_n_terms = [features[i] for i in top_n_indices]
     top_n_scores = [row_array[i] for i in top_n_indices]
     return list(zip(top_n_terms, top_n_scores))
+
 
 if __name__ == "__main__":
     db = Database()

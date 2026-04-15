@@ -1,13 +1,5 @@
-from db.database import Database
-from db.keyword_extraction import (
-    update_blueprint_keywords,
-    update_blueprint_keywords_yake,
-)
-from util.filtering import filter_blueprints
-import logging
 import argparse
-from sqlalchemy.sql import text
-from sqlalchemy import inspect
+import logging
 
 parser = argparse.ArgumentParser(description="Classify blueprints.")
 """ parser.add_argument(
@@ -40,6 +32,16 @@ logging.basicConfig(
 
 def main():
     try:
+        from sqlalchemy import inspect
+        from sqlalchemy.sql import text
+
+        from db.database import Database
+        from db.keyword_extraction import (
+            update_blueprint_keywords,
+            update_blueprint_keywords_yake,
+        )
+        from util.filtering import filter_blueprints
+
         db = Database(local=True, drop_existing_tables=False)
 
         with db.engine.connect() as connection:

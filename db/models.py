@@ -1,13 +1,13 @@
 from sqlalchemy import (
-    create_engine,
+    JSON,
+    Boolean,
     Column,
+    DateTime,
+    ForeignKey,
     Integer,
     String,
     Text,
-    DateTime,
-    Boolean,
-    JSON,
-    ForeignKey,
+    create_engine,
     text,
 )
 from sqlalchemy.ext.declarative import declarative_base

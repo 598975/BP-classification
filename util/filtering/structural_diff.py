@@ -1,14 +1,11 @@
-import json
-from deepdiff import DeepDiff
-from tqdm import tqdm
-import pandas as pd
-
 import sys
 from pathlib import Path
 
+import pandas as pd
+from deepdiff import DeepDiff
+from tqdm import tqdm
+
 sys.path.append(str(Path(__file__).parents[1]))
-from util.filtering.lang_identification import identify_language_yaml
-from db.database import Database
 from util.text_manipulation import normalize_text, parse_yaml
 
 
@@ -21,22 +18,15 @@ def normalize_blueprint(obj):
         return normalize_text(str(obj))
 
 
-""" def load_and_normalize_blueprints(topic_id=None, bps=None):
-    if bps:
-        return [normalize_blueprint(parse_yaml(bp.blueprint_code)) for bp in bps]
-    db = Database()
-
-    topic_posts = db.get_posts_by_topic_id(topic_id)
-    topic_bps = [db.get_blueprints_by_post_id(post.post_id) for post in topic_posts]
-    topic_bps = [bp for sublist in topic_bps for bp in sublist]
-    normalized_codes = [
-        normalize_blueprint(parse_yaml(bp.blueprint_code)) for bp in topic_bps
-    ]
-    return normalized_codes """
-
-
 def structural_diff(code1, code2):
-    diff = DeepDiff(code1, code2, ignore_order=True, get_deep_distance=True, cutoff_distance_for_pairs=1, cutoff_intersection_for_pairs=1)
+    diff = DeepDiff(
+        code1,
+        code2,
+        ignore_order=True,
+        get_deep_distance=True,
+        cutoff_distance_for_pairs=1,
+        cutoff_intersection_for_pairs=1,
+    )
     return diff, float(diff["deep_distance"]) if "deep_distance" in diff else 0.0
 
 
@@ -48,6 +38,7 @@ def compare_multiple_bps(codes):
             _, similarity = structural_diff(normalized_codes[i], normalized_codes[j])
             comparison.append((codes[i], codes[j], similarity))
     return comparison
+
 
 def filter_similar_blueprints(
     bp_df: pd.DataFrame, threshold: float = 0.8
@@ -69,7 +60,7 @@ def filter_similar_blueprints(
         codes = topic_bp_df["blueprint_code"].tolist()
         comparisons = compare_multiple_bps(codes)
         similar_codes = set()
-        for code1, code2, similarity in comparisons:
+        for _, code2, similarity in comparisons:
             if similarity <= threshold:
                 similar_codes.add(code2)
         bp_df = bp_df.drop(
@@ -79,7 +70,3 @@ def filter_similar_blueprints(
             ].index
         )
     return bp_df
-
-
-
-

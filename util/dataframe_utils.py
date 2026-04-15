@@ -1,6 +1,8 @@
-import pandas as pd
-from db.database import Database
 from typing import Any
+
+import pandas as pd
+
+from db.database import Database
 
 
 def get_dataframes(db: Database) -> tuple[Any, Any, Any]:

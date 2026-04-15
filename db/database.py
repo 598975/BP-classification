@@ -1,27 +1,26 @@
-from collections import defaultdict
-import sys
-from pathlib import Path
-from logging import debug, info, error
-from dotenv import load_dotenv
+import json
 import os
-import numpy as np
-from sqlalchemy import cast, Integer, text, func, select
+import sqlite3
+import sys
+from collections import defaultdict
+from logging import debug, error, info
+from pathlib import Path
+
+import pandas as pd
+from dotenv import load_dotenv
+from sqlalchemy import Integer, cast, func, select, text
 from sqlalchemy.orm import sessionmaker
 from tqdm import tqdm
-import sqlite3
-import pandas as pd
-import json
 
 # Add the parent directory to the path to import modules
 sys.path.append(str(Path(__file__).parents[1]))
 from db.models import (
     Base,
-    Topic,
-    Post,
     Blueprint,
     BlueprintFiltered,
-    BlueprintCategorized,
     BlueprintFTS,
+    Post,
+    Topic,
     init_database,
 )
 

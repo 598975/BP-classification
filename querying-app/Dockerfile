@@ -5,7 +5,7 @@
 # IMPORTANT: Node.js Version Maintenance
 # This Dockerfile uses Node.js 24.13.0-slim, which was the latest LTS version at the time of writing.
 # To ensure security and compatibility, regularly update the NODE_VERSION ARG to the latest LTS version.
-ARG NODE_VERSION=24-slim
+ARG NODE_VERSION=22-bookworm-slim
 
 FROM node:${NODE_VERSION} AS dependencies
 
@@ -35,6 +35,7 @@ RUN --mount=type=cache,target=/root/.npm \
 
 FROM node:${NODE_VERSION} AS builder
 
+
 # Set working directory
 WORKDIR /app
 
@@ -49,7 +50,7 @@ ENV NODE_ENV=production
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
-# ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build Next.js application
 # If you want to speed up Docker rebuilds, you can cache the build artifacts
@@ -80,23 +81,23 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+ENV DATABASE_URL="file:/app/home_assistant_blueprints.sqlite"
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the run time.
-# ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Copy production assets
 COPY --from=builder --chown=node:node /app/public ./public
-
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown node:node .next
-
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+COPY --from=builder --chown=node:node /app/home_assistant_blueprints.sqlite ./home_assistant_blueprints.sqlite
+
+# Set the correct permission for prerender cache
+RUN mkdir -p .next && chown node:node .next
 
 # If you want to persist the fetch cache generated during the build so that
 # cached responses are available immediately on startup, uncomment this line:

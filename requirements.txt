@@ -3,7 +3,7 @@ langid==1.1.6
 matplotlib==3.8.3
 nltk==3.9
 pandas==2.3.3
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 PyYAML==6.0.3
 scikit_learn==1.4.1.post1
 SQLAlchemy==2.0.27

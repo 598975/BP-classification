@@ -45,6 +45,38 @@ export async function getUniqueClusters() {
 	};
 }
 
+export async function getUniqueCategories() {
+	const blueprints = await prisma.prisma.blueprints_categorized.findMany({
+		select: {
+			category: true,
+			sub_category: true,
+		},
+	});
+
+	const categoryMap = new Map<string, Set<string>>();
+
+	blueprints.forEach((bp) => {
+		if (bp.category !== null && bp.sub_category !== null) {
+			const categoryKey = bp.category;
+
+			if (!categoryMap.has(categoryKey)) {
+				categoryMap.set(categoryKey, new Set());
+			}
+
+			categoryMap.get(categoryKey)!.add(bp.sub_category);
+		}
+	});
+
+	const categories = Array.from(categoryMap.entries())
+		.map(([category, subCategories]) => ({
+			category,
+			subCategories: Array.from(subCategories).sort(),
+		}))
+		.sort((a, b) => a.category.localeCompare(b.category));
+
+	return categories;
+}
+
 export async function getAllBps() {
 	const allBps = await prisma.prisma.blueprints_categorized.findMany();
 

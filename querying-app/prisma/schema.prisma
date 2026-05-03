@@ -11,7 +11,7 @@ model blueprints {
   id                 Int                  @id @default(autoincrement())
   blueprint_url      String?
   blueprint_code     String?
-  blueprint_hash     String?              
+  blueprint_hash     String?              @unique(map: "sqlite_autoindex_blueprints_1")
   post_id            String?
   name               String?
   description        String?
@@ -20,42 +20,46 @@ model blueprints {
   keywords_yake      Unsupported("json")?
   keywords_tfidf     Unsupported("json")?
   posts              posts?               @relation(fields: [post_id], references: [post_id], onDelete: NoAction, onUpdate: NoAction)
-
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model blueprints_categorized {
-  blueprint_url      String?
+  blueprint_hash     String?
+  id                 BigInt              @id @default(autoincrement())
+  name               String?
+  extracted_keywords String?
   blueprint_code     String?
+  blueprint_url      String?
   post_id            String?
   description        String?
   keywords_yake      String?
-  blueprint_hash     String?              
-  id                 BigInt               @id @default(autoincrement())
-  name               String?
-  extracted_keywords String?
   topic_id           String?
   tags               String?
   created_at         DateTime?
   features           String?
   fine_cluster       BigInt?
   top_cluster        BigInt?
+  category           String?
+  sub_category       String?
+
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model blueprints_filtered {
-  blueprint_url      String?
-  blueprint_code     String?
-  post_id            String?
-  description        String?
-  keywords_yake      String?
   blueprint_hash     String?
   id                 BigInt?
   name               String?
   extracted_keywords String?
+  blueprint_code     String?
+  blueprint_url      String?
+  post_id            String?
+  description        String?
+  keywords_yake      String?
   topic_id           String?
   tags               String?
   created_at         DateTime?
+  category           String?
+  sub_category       String?
 
   @@ignore
 }
@@ -121,7 +125,6 @@ model blueprints_fts_idx {
   pgno  Unsupported("")?
 
   @@id([segid, term])
-
   @@ignore
 }
 
@@ -146,7 +149,6 @@ model posts {
   topic_id             String?
   blueprints           blueprints[]
   topics               topics?      @relation(fields: [topic_id], references: [topic_id], onDelete: NoAction, onUpdate: NoAction)
-  
 }
 
 model topics {
@@ -197,5 +199,4 @@ model topics {
   views                   Int?
   like_count              Int?
   posts                   posts[]
-
 }

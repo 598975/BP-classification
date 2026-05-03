@@ -156,6 +156,8 @@ class BlueprintCategorized(Base):
     features = Column(Text)
     fine_cluster = Column(Integer)
     top_cluster = Column(Integer)
+    category = Column(Text)
+    sub_category = Column(Text)
 
     # Relationship to Post
     post = relationship("Post")

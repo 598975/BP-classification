@@ -18,6 +18,7 @@ import { Panel } from "./Panel";
 import { useState } from "react";
 
 export function Search() {
+	const [categoryIsOpen, setCategoryIsOpen] = useState(true);
 	const [featureIsOpen, setFeatureIsOpen] = useState(false);
 	const [inputIsOpen, setInputsIsOpen] = useState(false);
 	const [outputIsOpen, setOutputIsOpen] = useState(false);
@@ -34,6 +35,46 @@ export function Search() {
 					<aside className="lg:col-span-1">
 						<div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto p-4 bg-white dark:bg-gray-700 rounded-lg shadow-sm">
 							
+								<div>
+									<button
+										onClick={() => setCategoryIsOpen(!categoryIsOpen)}
+										className=" flex items-center justify-between p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors"
+										aria-label={
+											categoryIsOpen
+												? "Collapse categories"
+												: "Expand categories"
+										}
+									>
+										<h2 className="text-lg font-semibold  text-gray-900 dark:text-gray-100">
+											Categories
+										</h2>
+										<svg
+											className={`h-4.5 w-4.5 transition-transform ${
+												categoryIsOpen ? "rotate-180" : ""
+											}`}
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+												d="M19 9l-7 7-7-7"
+											/>
+										</svg>
+									</button>
+
+									{categoryIsOpen && (
+										<Panel>
+											<RefinementList
+												attribute="category"
+												operator="and"
+												limit={20}
+											/>
+										</Panel>
+									)}
+								</div>
 								<div>
 									<button
 										onClick={() => setFeatureIsOpen(!featureIsOpen)}

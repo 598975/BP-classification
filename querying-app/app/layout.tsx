@@ -48,7 +48,7 @@ export default function RootLayout({
 								href="/blueprint"
 								className="text-l font-bold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
 							>
-								Explore Clusters
+								Explore Categories
 							</Link>
 						</div>
 					</div>

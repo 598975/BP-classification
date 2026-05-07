@@ -1,8 +1,10 @@
-import voluptuous as vol
 from logging import debug
-from .schema import BLUEPRINT_SCHEMA
+
+import voluptuous as vol
+
 from .expand import replace_input_tags
 from .extract_keywords import extract_keywords
+from .schema import BLUEPRINT_SCHEMA
 
 
 def validate_blueprint(blueprint_dict):

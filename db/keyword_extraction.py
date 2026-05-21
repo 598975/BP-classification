@@ -81,7 +81,29 @@ def update_blueprint_keywords(db: Database):
 
 
 def update_blueprint_keywords_yake(db: Database):
-    bp_df, posts_df, topics_df = get_dataframes(db)
+    blueprints = db.get_all_blueprints()
+    posts = {post.post_id: post for post in db.get_posts()}
+    topics = {topic.topic_id: topic for topic in db.get_topics()}
+
+    bp_df = pd.DataFrame(
+        [
+            {_attr: getattr(bp, _attr) for _attr in bp.__dict__.keys()}
+            for bp in blueprints
+        ]
+    )
+    posts_df = pd.DataFrame(
+        [
+            {_attr: getattr(post, _attr) for _attr in post.__dict__.keys()}
+            for post in posts.values()
+        ]
+    )
+    topics_df = pd.DataFrame(
+        [
+            {_attr: getattr(topic, _attr) for _attr in topic.__dict__.keys()}
+            for topic in topics.values()
+        ]
+    )
+
     bp_df["processed_keywords"] = bp_df["extracted_keywords"].apply(
         keywords_remove_input
     )

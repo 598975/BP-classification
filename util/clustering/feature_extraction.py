@@ -4,6 +4,7 @@ import pickle
 import random
 import re
 from difflib import SequenceMatcher
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -118,7 +119,7 @@ def extract_features(bp_df):
     )
     bp_df["features"] = bp_df["features"].apply(lambda x: " ".join(x))
 
-    cache_file = "output/embeddings_cache.pkl"
+    cache_file = Path("output") / "embeddings_cache.pkl"
     if os.path.exists(cache_file):
         print("Loading cached embeddings...")
         with open(cache_file, "rb") as f:
@@ -142,6 +143,7 @@ def extract_features(bp_df):
         X_normalized = normalize(X, norm="l2")
 
         # Cache for future runs
+        cache_file.parent.mkdir(parents=True, exist_ok=True)
         with open(cache_file, "wb") as f:
             pickle.dump(
                 {"embeddings": embeddings_list, "X": X, "X_normalized": X_normalized}, f

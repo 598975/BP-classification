@@ -22,6 +22,11 @@ parser.add_argument(
     action="store_true",
     help="Filter out blueprints based on language and similarity.",
 )
+parser.add_argument(
+    "--cluster_bps",
+    action="store_true",
+    help="Cluster blueprints.",
+)
 args = parser.parse_args()
 
 # Configure logging
@@ -41,6 +46,7 @@ def main():
             update_blueprint_keywords_yake,
         )
         from util.filtering import filter_blueprints
+        from util.clustering import cluster_blueprints
 
         db = Database(local=True, drop_existing_tables=False)
 
@@ -62,6 +68,9 @@ def main():
 
         if args.filter_bps:
             filter_blueprints(db)
+            
+        if args.cluster_bps:
+            cluster_blueprints(db)
 
     except Exception as e:
         logging.error(str(e))

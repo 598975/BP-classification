@@ -17,6 +17,7 @@ sys.path.append(str(Path(__file__).parents[1]))
 from db.models import (
     Base,
     Blueprint,
+    BlueprintCategorized,
     BlueprintFiltered,
     BlueprintFTS,
     Post,
@@ -604,6 +605,10 @@ class Database:
     def update_blueprint_filtered_table(self, bp_df: pd.DataFrame):
         bp_df_copy = bp_df.copy()
 
+        allowed_columns = set(BlueprintFiltered.__table__.columns.keys())
+        existing_columns = [col for col in bp_df_copy.columns if col in allowed_columns]
+        bp_df_copy = bp_df_copy[existing_columns]
+
         # JSON-serialize dict and list columns for SQLite compatibility
         for col in bp_df_copy.columns:
             if bp_df_copy[col].dtype == "object":
@@ -614,6 +619,25 @@ class Database:
         with self.engine.connect() as conn:
             bp_df_copy.to_sql(
                 "blueprints_filtered", conn, if_exists="replace", index=False
+            )
+
+    def update_blueprint_categorized_table(self, bp_df: pd.DataFrame):
+        bp_df_copy = bp_df.copy()
+
+        allowed_columns = set(BlueprintCategorized.__table__.columns.keys())
+        existing_columns = [col for col in bp_df_copy.columns if col in allowed_columns]
+        bp_df_copy = bp_df_copy[existing_columns]
+
+        # JSON-serialize dict and list columns for SQLite compatibility
+        for col in bp_df_copy.columns:
+            if bp_df_copy[col].dtype == "object":
+                for idx, val in enumerate(bp_df_copy[col]):
+                    if isinstance(val, (dict, list)):
+                        bp_df_copy.loc[idx, col] = json.dumps(val)
+
+        with self.engine.connect() as conn:
+            bp_df_copy.to_sql(
+                "blueprints_categorized", conn, if_exists="replace", index=False
             )
 
     def get_filtered_bps(self):

@@ -46,6 +46,7 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
 ENV NODE_ENV=production
+ENV DATABASE_URL="file:/app/home_assistant_blueprints.sqlite"
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry

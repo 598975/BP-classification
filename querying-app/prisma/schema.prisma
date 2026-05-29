@@ -25,7 +25,7 @@ model blueprints {
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model blueprints_categorized {
   blueprint_hash     String?
-  id                 BigInt              @id @default(autoincrement())
+  id                 BigInt               @id @default(autoincrement())
   name               String?
   extracted_keywords String?
   blueprint_code     String?
@@ -41,7 +41,7 @@ model blueprints_categorized {
   top_cluster        BigInt?
   category           String?
   sub_category       String?
-
+ 
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -58,8 +58,6 @@ model blueprints_filtered {
   topic_id           String?
   tags               String?
   created_at         DateTime?
-  category           String?
-  sub_category       String?
 
   @@ignore
 }
